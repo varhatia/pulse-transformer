@@ -360,6 +360,7 @@ def getCalmVersionDistro():
     print(version_dict)
     return version_dict
 
+
 @app.route("/getStats", methods=['GET']) 
 def getStats():
     if request.method=='GET':
