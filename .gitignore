@@ -15,3 +15,6 @@ ui/public/*
 .vscode/settings.json
 
 ui/yarn.lock
+api/package-lock.json
+api/pulseExtractor.code-workspace
+ui/package-lock.json
