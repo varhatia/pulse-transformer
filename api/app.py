@@ -18,6 +18,8 @@ app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:sherlock@localhost/
 app.config['CORS_HEADERS'] = 'Content-Type'
 db=SQLAlchemy(app)
 
+files_path="/Users/vishal.arhatia/pulse-transformer/"
+quarter_to_show= "Q4'2020"
 stats = {}
 sinceDays = {}
 adoption_records = []
@@ -179,10 +181,10 @@ def quarter(i):
 @app.route("/")
 def intialize():
     
-    excelList = ["/Users/vishal.arhatia/pulse-transformer/Calm_Customer_List_Q1'2020.xlsx", 
-                 "/Users/vishal.arhatia/pulse-transformer/Calm_Customer_List_Q2'2020.xlsx",
-                 "/Users/vishal.arhatia/pulse-transformer/Calm_Customer_List_Q3'2020.xlsx", 
-                 "/Users/vishal.arhatia/pulse-transformer/Calm_Customer_List_Q4'2020.xlsx"]
+    excelList = [files_path+"api/Calm_Customer_List_Q1'2020.xlsx", 
+                 files_path+"api/Calm_Customer_List_Q2'2020.xlsx",
+                 files_path+"api/Calm_Customer_List_Q3'2020.xlsx", 
+                 files_path+"api/Calm_Customer_List_Q4'2020.xlsx"]
     
     for excel in excelList:
 
@@ -320,7 +322,6 @@ def intialize():
                 else:
                     version_dict[CALM_VERSION] = 1
                 
-
                 # #current quarter
                 # current_time = datetime.datetime.utcnow()
                 # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
@@ -371,6 +372,79 @@ def intialize():
     
     return ""
 
+@app.route("/getStats", methods=['GET']) 
+def getStats():
+    if request.method=='GET':
+        return stats
+
+
+def populateStats():
+    #This is for last quarter
+    
+
+    print(" Current Quarter is : %s " % quarter_to_show)
+
+    num_of_active_customers = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active Customers: %s " % num_of_active_customers)
+    
+    num_of_active_BPs = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active BPs: %s " % num_of_active_BPs)
+
+    num_of_running_APPs = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Running APPs: %s " % num_of_running_APPs)
+    
+    num_of_provisioning_APPs = db.session.query(func.sum(Data.PROVISIONING_APP)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Provisioning APPs: %s " % num_of_provisioning_APPs)
+    
+    num_of_managed_VMs= db.session.query(func.sum(Data.TOTAL_MANAGED_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Managed VMs: %s " % num_of_managed_VMs)
+    
+    num_of_active_AHV_VMs = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs)
+    
+    num_of_active_AWS_VMs = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active AWS VMs: %s " % num_of_active_AWS_VMs)
+    
+    num_of_active_VMWare_VMs = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active VMware VMs: %s " % num_of_active_VMWare_VMs)
+    
+    num_of_active_GCP_VMs = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active GCP VMs: %s " % num_of_active_GCP_VMs)
+    
+    num_of_active_Existing_VMs = db.session.query(func.sum(Data.ACTIVE_EXISTING_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total Active Existing VMs: %s " % num_of_active_Existing_VMs)
+    
+    num_of_licensed_unique_VMs = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total licenses unique VMs: %s " % num_of_licensed_unique_VMs)
+
+    num_of_licenses_required = db.session.query(func.sum(Data.LICENSE_REQUIRED_PACKS)).filter(Data.QUARTER == quarter_to_show).scalar()
+    print(" Total licenses required: %s " % num_of_licenses_required)
+
+    average_adoption = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == quarter_to_show).scalar()
+
+    print(average_adoption)
+    print(type(average_adoption))
+    print(round(average_adoption, 2))
+    
+    stats['active_customers'] = num_of_active_customers
+    stats['active_BPs'] = num_of_active_BPs
+    stats['running_APPs'] = num_of_running_APPs
+    stats['provisioning_APPs'] = num_of_provisioning_APPs
+    stats['managed_VM'] = num_of_managed_VMs
+    stats['active_AHV_VMs'] = num_of_active_AHV_VMs
+    stats['active_AWS_VMs'] = num_of_active_AWS_VMs
+    stats['active_VMWare_VMs'] = num_of_active_VMWare_VMs
+    stats['active_GCP_VMs'] = num_of_active_GCP_VMs
+    stats['active_Existing_VMs'] = num_of_active_Existing_VMs
+    stats['licensed_unique_VMs'] = num_of_licensed_unique_VMs 
+    stats['licenses_required'] = num_of_licenses_required
+    stats['avg_adoption'] = round(average_adoption, 2)
+    
+
+@app.route("/getAdoption", methods=['GET'])
+def getAdoption():
+    return jsonify({'adoption records': adoption_records})
+    
 def populateAdoption():
     #Prepare adoption Data
     records = db.session.query(Data).filter(Data.ADOPTION != -1).order_by(Data.ADOPTION.desc()).all()
@@ -395,24 +469,9 @@ def populateAdoption():
 
     print(adoption_records)    
 
-@app.route("/getAdoption", methods=['GET'])
-def getAdoption():
-    return jsonify({'adoption records': adoption_records})
-
-@app.route("/getReportedDataSinceDays/<num>", methods=['GET'])
-def getReportedDataSinceDays(num):
-    current_time = datetime.datetime.utcnow()
-    num_weeks_ago = current_time - datetime.timedelta(weeks=int(num))
-    within_Range = db.session.query(Data).filter(Data.Last_Reported_Date > num_weeks_ago).count()
-    customer_Count = db.session.query(func.count(Data.Customer_Name)).scalar()
-    
-    print(" Total Active Customers: %s " % customer_Count)
-    print(" Within Range Data: %s " % within_Range)
-
-    sinceDays = {}
-    sinceDays['Within Range'] = within_Range
-
-    return sinceDays
+@app.route("/getCalmVersionDistro", methods=['GET'])
+def getCalmVersionDistro():
+    return jsonify({'version records': version_records})
 
 def populateCalmVersion():
         #Prepare Calm Version records
@@ -440,76 +499,10 @@ def populateCalmVersion():
 
     print(version_records)
 
-@app.route("/getCalmVersionDistro", methods=['GET'])
-def getCalmVersionDistro():
-    return jsonify({'version records': version_records})
-
-def populateStats():
-    #This is for last quarter
-    QUARTER = "Q4'2020"
-
-    print(" Current Quarter is : %s " % QUARTER)
-
-    num_of_active_customers = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active Customers: %s " % num_of_active_customers)
-    
-    num_of_active_BPs = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active BPs: %s " % num_of_active_BPs)
-
-    num_of_running_APPs = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Running APPs: %s " % num_of_running_APPs)
-    
-    num_of_provisioning_APPs = db.session.query(func.sum(Data.PROVISIONING_APP)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Provisioning APPs: %s " % num_of_provisioning_APPs)
-    
-    num_of_managed_VMs= db.session.query(func.sum(Data.TOTAL_MANAGED_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Managed VMs: %s " % num_of_managed_VMs)
-    
-    num_of_active_AHV_VMs = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs)
-    
-    num_of_active_AWS_VMs = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active AWS VMs: %s " % num_of_active_AWS_VMs)
-    
-    num_of_active_VMWare_VMs = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active VMware VMs: %s " % num_of_active_VMWare_VMs)
-    
-    num_of_active_GCP_VMs = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active GCP VMs: %s " % num_of_active_GCP_VMs)
-    
-    num_of_active_Existing_VMs = db.session.query(func.sum(Data.ACTIVE_EXISTING_VMS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total Active Existing VMs: %s " % num_of_active_Existing_VMs)
-    
-    num_of_licensed_unique_VMs = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total licenses unique VMs: %s " % num_of_licensed_unique_VMs)
-
-    num_of_licenses_required = db.session.query(func.sum(Data.LICENSE_REQUIRED_PACKS)).filter(Data.QUARTER == QUARTER).scalar()
-    print(" Total licenses required: %s " % num_of_licenses_required)
-
-    average_adoption = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == QUARTER).scalar()
-
-    print(average_adoption)
-    print(type(average_adoption))
-    print(round(average_adoption, 2))
-    
-    stats['active_customers'] = num_of_active_customers
-    stats['active_BPs'] = num_of_active_BPs
-    stats['running_APPs'] = num_of_running_APPs
-    stats['provisioning_APPs'] = num_of_provisioning_APPs
-    stats['managed_VM'] = num_of_managed_VMs
-    stats['active_AHV_VMs'] = num_of_active_AHV_VMs
-    stats['active_AWS_VMs'] = num_of_active_AWS_VMs
-    stats['active_VMWare_VMs'] = num_of_active_VMWare_VMs
-    stats['active_GCP_VMs'] = num_of_active_GCP_VMs
-    stats['active_Existing_VMs'] = num_of_active_Existing_VMs
-    stats['licensed_unique_VMs'] = num_of_licensed_unique_VMs 
-    stats['licenses_required'] = num_of_licenses_required
-    stats['avg_adoption'] = round(average_adoption, 2)
-    
-@app.route("/getStats", methods=['GET']) 
-def getStats():
+@app.route("/getStatsByQtr", methods=['GET']) 
+def getStatsByQtr():
     if request.method=='GET':
-        return stats
+        return jsonify({'statsByQtr': statsByQtr})
 
 def populateStatsByQtr():
     num_of_active_bps_q1 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q1'2020").scalar()
@@ -591,10 +584,11 @@ def populateStatsByQtr():
     
     print(statsByQtr)
 
-@app.route("/getStatsByQtr", methods=['GET']) 
-def getStatsByQtr():
+
+@app.route("/getProviderStatsByQtr", methods=['GET']) 
+def getProviderStatsByQtr():
     if request.method=='GET':
-        return jsonify({'statsByQtr': statsByQtr})
+        return jsonify({'finalrecord': providerStatsByQtr})
 
 def populateProviderStatsByQtr():
     num_of_active_AHV_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q1'2020").scalar()
@@ -696,13 +690,35 @@ def populateProviderStatsByQtr():
 
     print(providerStatsByQtr)
 
-@app.route("/getProviderStatsByQtr", methods=['GET']) 
-def getProviderStatsByQtr():
+@app.route("/getSoftDeleteCustomers", methods=['GET']) 
+def getSoftDeleteCustomers():
     if request.method=='GET':
-        return jsonify({'finalrecord': soft_Delete_Customers})
+        return jsonify({'Soft Delete Customers': soft_Delete_Customers})
+
+def populateSoftDeleteCustomers():
+    records = db.session.query(Data.Customer_Name, Data.PC_Cluster_UUID, Data.ACTIVE_AHV_VMS, Data.TOTAL_AHV_VMS, Data.RUNNING_APP, Data.PERCENT_VMs_INUSE).filter(Data.QUARTER == quarter_to_show).filter(Data.PERCENT_VMs_INUSE > -1).all()
+    print(" Soft Delete Customers are : %s " % records)
+
+    for record in records:
+        soft_delete_record = {}
+        soft_delete_record["Customer"] = record.Customer_Name
+        soft_delete_record["Cluster_ID"] = record.PC_Cluster_UUID
+        soft_delete_record["Active_AHV_VMs"] = record.ACTIVE_AHV_VMS
+        soft_delete_record["Total_AHV_VMs"] = record.TOTAL_AHV_VMS
+        soft_delete_record["Running_App"] = record.RUNNING_APP
+        soft_delete_record["Percent_InUse"] = record.PERCENT_VMs_INUSE
+        
+        soft_Delete_Customers.append(soft_delete_record)
+
+    print(soft_Delete_Customers)
+
+@app.route("/getPublicAccounts", methods=['GET']) 
+def getPublicAccounts():
+    if request.method=='GET':
+        return jsonify({'Public Account Records': public_accounts_records})
 
 def populatePublicAccount():
-    records = db.session.query(Data.Customer_Name, Data.AWS_ACCOUNT, Data.AZURE_ACCOUNT, Data.GCP_ACCOUNT, Data.PUBLIC_ACCOUNT).filter(Data.QUARTER == "Q4'2020").filter(Data.PUBLIC_ACCOUNT > -1).all()
+    records = db.session.query(Data.Customer_Name, Data.AWS_ACCOUNT, Data.AZURE_ACCOUNT, Data.GCP_ACCOUNT, Data.PUBLIC_ACCOUNT).filter(Data.QUARTER == quarter_to_show).filter(Data.PUBLIC_ACCOUNT > -1).all()
     print(" Public Account Customers are : %s " % records)
 
     for record in records:
@@ -717,10 +733,21 @@ def populatePublicAccount():
 
     print(public_accounts_records)
 
-@app.route("/getPublicAccounts", methods=['GET']) 
-def getPublicAccounts():
-    if request.method=='GET':
-        return jsonify({'Public Account Records': public_accounts_records})
+
+@app.route("/getReportedDataSinceDays/<num>", methods=['GET'])
+def getReportedDataSinceDays(num):
+    current_time = datetime.datetime.utcnow()
+    num_weeks_ago = current_time - datetime.timedelta(weeks=int(num))
+    within_Range = db.session.query(Data).filter(Data.Last_Reported_Date > num_weeks_ago).count()
+    customer_Count = db.session.query(func.count(Data.Customer_Name)).scalar()
+    
+    print(" Total Active Customers: %s " % customer_Count)
+    print(" Within Range Data: %s " % within_Range)
+
+    sinceDays = {}
+    sinceDays['Within Range'] = within_Range
+
+    return sinceDays
 
 
 UPLOAD_FOLDER = '/Users/vishal.arhatia/pulse-transformer/'
