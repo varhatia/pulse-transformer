@@ -47,7 +47,7 @@ function App() {
 
   const [withinRange, setWithinRange] = useState(0);
   
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(4);
   // const [file, setFile] = useState({});
   
   const handleSubmit = event => {
@@ -246,6 +246,11 @@ function App() {
       rows[0].map(item => tRows.push(item))
       setPublicAccountRows(tRows)
     })
+
+    fetch('/getReportedDataSinceDays/'+index).then(res => res.json()).then(data => {
+      setWithinRange(data["Within Range"])
+    })
+
   }, []);
 
 
@@ -503,7 +508,7 @@ function App() {
       <Toolbar>
         {
           <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-            SoftDelete suspects
+            Customers using Soft Delete
           </Typography>
         }
       </Toolbar>
@@ -805,15 +810,17 @@ function App() {
                 </div>
               </form> */}
                 <form onSubmit={handleSubmit}>
-                  <label>Customer Data within X weeks old:</label>
+                  <label><strong>{withinRange}</strong> Active customers reported data within last <strong>{index}</strong> weeks </label>
+                  <br></br>
+                  <br></br>
+                  <label>Customize weeks </label>
                   <input
                   value={index}
-                  label="Enter X  "
+                  label="Enter X "
                   onChange={event => setIndex(event.target.value)}
-                  defaule = "Enter X"
                   />
                   <button>Submit</button>
-                <h3>Within Range Customers : {withinRange}</h3>
+                {/* <h3>Within Range Customers : {withinRange}</h3> */}
               </form>
             </TableCell>
             </TableRow> 
