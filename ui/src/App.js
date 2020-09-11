@@ -22,6 +22,23 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import PropTypes from 'prop-types';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
+import MaterialTable from 'material-table';
+import AddBox from '@material-ui/icons/AddBox';
+import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import Check from '@material-ui/icons/Check';
+import ChevronLeft from '@material-ui/icons/ChevronLeft';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import Clear from '@material-ui/icons/Clear';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
+import Edit from '@material-ui/icons/Edit';
+import FilterList from '@material-ui/icons/FilterList';
+import FirstPage from '@material-ui/icons/FirstPage';
+import LastPage from '@material-ui/icons/LastPage';
+import Remove from '@material-ui/icons/Remove';
+import SaveAlt from '@material-ui/icons/SaveAlt';
+import Search from '@material-ui/icons/Search';
+import ViewColumn from '@material-ui/icons/ViewColumn';
+import { forwardRef } from 'react';
 
 function App() {
   const [active_customers, setActive_Customers] = useState(0);
@@ -34,6 +51,7 @@ function App() {
   const [active_VMWare_VMs, setActiveVMWareVMs] = useState(0);
   // const [active_GCP_VMs, setActiveGCPVMs] = useState(0);
   const [active_Existing_VMs, setActiveExistingVMs] = useState(0);
+  const [paid_customers, setPaidCustomers] = useState(0);
   const [licensed_unique_VMs, setLicensedUniqueVMs] = useState(0);
   const [licenses_required, setLicensesRequired] = useState(0);
   const [avg_adoption, setAvgAdoption] = useState(0);
@@ -44,7 +62,8 @@ function App() {
   const [softDeleteRows, setSoftDeleteRows] = useState([]);
   const [publicAccountRows, setPublicAccountRows] = useState([]);
   const [adoptionRateRows, setAdoptionRateRows] = useState([]);
-
+  const [licenseRows, setLicenseRows] = useState([]);
+  const [supportRows, setSupportRows] = useState([]);
   const [withinRange, setWithinRange] = useState(0);
   
   const [index, setIndex] = useState(4);
@@ -55,31 +74,6 @@ function App() {
     fetchData();
   };
 
-  // const handleUploadImage = event => {
-  //   event.preventDefault();
-    
-  //   console.log("File is", {file})
-    
-  //   const data = new FormData();
-  // data.append('filename', {});
-  //   data.append('file', {file});
-    
-  //   axios.post("http://localhost:5000/upload", data, { // receive two parameter endpoint url ,form data 
-  //     })
-  //     .then(res => { // then print response status
-  //       console.log(res.statusText)
-  //     })
-
-  //   // fetch('http://localhost:5000/upload', {
-  //   //   method: 'POST',
-  //   //   body: file,
-  //   // }).then((response) => {
-  //   //   response.json().then((body) => {
-  //   //     console.log("Upload successful!!!")
-  //   //   });
-  //   // });
-  // }
-  
   const useStyles = makeStyles({
     bullet: {
       display: 'inline-block',
@@ -90,7 +84,6 @@ function App() {
       fontSize: 14,
     },
     pos: {
-      marginBottom: 12,
     },
     flexContainer: {
       display: 'flex',
@@ -118,57 +111,11 @@ function App() {
   
   const classes = useStyles();
   
-  const useToolbarStyles = makeStyles((theme) => ({
-    root: {
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(1),
-    },
-    highlight:
-      theme.palette.type === 'light'
-        ? {
-            color: theme.palette.secondary.main,
-            backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-          }
-        : {
-            color: theme.palette.text.primary,
-            backgroundColor: theme.palette.secondary.dark,
-          },
-    title: {
-      flex: '1 1 100%',
-    },
-  }));
-
-  function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
-  }
-
-  function getComparator(order, orderBy) {
-    return order === 'desc'
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
-
-  function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-  }
-
   async function fetchData() {
     console.log(index)
     const { data } = await axios.get('http://localhost:5000/getReportedDataSinceDays/'+index)
     setWithinRange(data["Within Range"])
-  }
+  };
 
   useEffect(() => {
     fetch('/getStats').then(res => res.json()).then(data => {
@@ -182,6 +129,7 @@ function App() {
       setActiveVMWareVMs(data.active_VMWare_VMs);
       // setActiveGCPVMs(data.active_GCP_VMs);
       setActiveExistingVMs(data.active_Existing_VMs);
+      setPaidCustomers(data.paid_customers);
       setLicensedUniqueVMs(data.licensed_unique_VMs);
       setLicensesRequired(data.licenses_required);
       setAvgAdoption(data.avg_adoption);
@@ -251,391 +199,106 @@ function App() {
       setWithinRange(data["Within Range"])
     })
 
+    fetch('/getLicenseData').then(res => res.json()).then(data => {
+      var rows = []
+      var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data)
+      rows[0].map(item => tRows.push(item))
+      setLicenseRows(tRows)
+    })
+
+    fetch('/getSupportData').then(res => res.json()).then(data => {
+      var rows = []
+      var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data)
+      rows[0].map(item => tRows.push(item))
+      setSupportRows(tRows)
+    })
+
   }, []);
 
-
   //Adoption Table
-  const [adoptionRateOrder, setAdoptionRateOrder] = React.useState('asc');
-  const [adoptionRateOrderBy, setAdoptionRateOrderBy] = React.useState('calories');
-  const [adoptionRatePage, setAdoptionRatePage] = React.useState(0);
-  const [adoptionRateDense, setAdoptionRateDense] = React.useState(false);
-  const [rowsPerAdoptionRatePage, setRowsPerAdoptionRatePage] = React.useState(5);
-
-  const adoptionRateTableCells = [
-    { id: 'Name', numeric: false, disablePadding: false, label: 'Customer' },
-    { id: 'Value', numeric: true, disablePadding: false, label: '% Adoption' },
-  ];
-
-  function AdoptionRateTableHead(props) {
-    const { classes, adoptionRateOrder, adoptionRateOrderBy, onRequestSort } = props;
-    const createSortHandler = (property) => (event) => {
-      onRequestSort(event, property);
-    };
-
-    return (
-      <TableHead>
-        <TableRow>
-          {adoptionRateTableCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'default'}
-              sortDirection={adoptionRateOrderBy === headCell.id ? adoptionRateOrder : false}
-            >
-              <TableSortLabel
-                active={adoptionRateOrderBy === headCell.id}
-                direction={adoptionRateOrderBy === headCell.id ? adoptionRateOrder : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {adoptionRateOrderBy === headCell.id ? (
-                  <span className={classes.visuallyHidden}>
-                    {adoptionRateOrder === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </span>
-                ) : null}
-              </TableSortLabel>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  }
-
-  AdoptionRateTableHead.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    adoptionRateOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    adoptionRateOrderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-  };
-
-  const AdoptionRateTableToolbar = (props) => {
-    const classes = useToolbarStyles();
+  const [AdoptionRate, setAdoptionRate] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'Name' },
+      { title: '% Adoption', field: 'Value', type: 'numeric' },
+    ],
+  });
   
-    return (
-      <Toolbar>
-        {
-          <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-            Customer vs Adoption Rate
-          </Typography>
-        }
-      </Toolbar>
-    );
-  };
-  
-  AdoptionRateTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-  };
-
-  const handleRequestAdoptionRateSort = (event, property) => {
-    const isAsc = adoptionRateOrderBy === property && adoptionRateOrder === 'asc';
-    setAdoptionRateOrder(isAsc ? 'desc' : 'asc');
-    setAdoptionRateOrderBy(property);
-  };
-
-  const handleChangeAdoptionRatePage = (event, newPage) => {
-    setAdoptionRatePage(newPage);
-  };
-
-  const handleChangeRowsPerAdoptionRatePage = (event) => {
-    setRowsPerAdoptionRatePage(parseInt(event.target.value, 10));
-    setAdoptionRatePage(0);
-  };
-
-  const handleChangeAdoptionRateDense = (event) => {
-    setAdoptionRateDense(event.target.checked);
-  };
-
-  const emptyAdoptionRateRows = rowsPerAdoptionRatePage - Math.min(rowsPerAdoptionRatePage, adoptionRateRows.length - adoptionRatePage * rowsPerAdoptionRatePage);
-
   //Calm Version Distribution  Table
-  const [calmVersionOrder, setCalmVersionOrder] = React.useState('asc');
-  const [calmVersionOrderBy, setCalmVersionOrderBy] = React.useState('calories');
-  const [calmVersionPage, setCalmVersionPage] = React.useState(0);
-  const [calmVersionDense, setCalmVersionDense] = React.useState(false);
-  const [rowsPerCalmVersionPage, setRowsPerCalmVersionPage] = React.useState(5);
-
-  const calmVersionTableCells = [
-    { id: 'Version_Name', numeric: false, disablePadding: false, label: 'Version Number' },
-    { id: 'Value', numeric: true, disablePadding: false, label: 'Count' },
-  ];
-
-  function CalmVersionTableHead(props) {
-    const { classes, calmVersionOrder, calmVersionOrderBy, onRequestSort } = props;
-    const createSortHandler = (property) => (event) => {
-      onRequestSort(event, property);
-    };
-
-    return (
-      <TableHead>
-        <TableRow>
-          {calmVersionTableCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'default'}
-              sortDirection={calmVersionOrderBy === headCell.id ? calmVersionOrder : false}
-            >
-              <TableSortLabel
-                active={calmVersionOrderBy === headCell.id}
-                direction={calmVersionOrderBy === headCell.id ? calmVersionOrder : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {calmVersionOrderBy === headCell.id ? (
-                  <span className={classes.visuallyHidden}>
-                    {calmVersionOrder === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </span>
-                ) : null}
-              </TableSortLabel>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  }
-
-  CalmVersionTableHead.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    calmVersionOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    calmVersionOrderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-  };
-
-  const CalmVersionTableToolbar = (props) => {
-    const classes = useToolbarStyles();
-  
-    return (
-      <Toolbar>
-        {
-          <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-            Calm Version vs Customers
-          </Typography>
-        }
-      </Toolbar>
-    );
-  };
-  
-  CalmVersionTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-  };
-
-  const handleRequestCalmVersionSort = (event, property) => {
-    const isAsc = calmVersionOrderBy === property && calmVersionOrder === 'asc';
-    setCalmVersionOrder(isAsc ? 'desc' : 'asc');
-    setCalmVersionOrderBy(property);
-  };
-
-  const handleChangeCalmVersionPage = (event, newPage) => {
-    setCalmVersionPage(newPage);
-  };
-
-  const handleChangeRowsPerCalmVersionPage = (event) => {
-    setRowsPerCalmVersionPage(parseInt(event.target.value, 10));
-    setCalmVersionPage(0);
-  };
-
-  const handleChangeCalmVersionDense = (event) => {
-    setCalmVersionDense(event.target.checked);
-  };
-
-  const emptyCalmVersionRows = rowsPerCalmVersionPage - Math.min(rowsPerCalmVersionPage, calmVersionRows.length - calmVersionPage * rowsPerCalmVersionPage);
+  const [CalmVersionDistro, setCalmVersionDistro] = React.useState({
+    columns: [
+      { title: 'Version Number', field: 'Version_Name' },
+      { title: 'Count', field: 'Value', type: 'numeric' },
+    ],
+  });
 
   //Soft Delete Table
-  const [softDeleteOrder, setSoftDeleteOrder] = React.useState('asc');
-  const [softDeleteOrderBy, setSoftDeleteOrderBy] = React.useState('calories');
-  const [softDeletePage, setSoftDeletePage] = React.useState(0);
-  const [softDeleteDense, setSoftDeleteDense] = React.useState(false);
-  const [rowsPerSoftDeletePage, setRowsPerSoftDeletePage] = React.useState(5);
-
-  const softDeleteTableCells = [
-    { id: 'Customer', numeric: false, disablePadding: false, label: 'Customer' },
-    { id: 'Cluster_ID', numeric: false, disablePadding: false, label: 'PC Cluster ID' },
-    { id: 'Active_AHV_VMs', numeric: true, disablePadding: false, label: 'Active AHV VMs' },
-    { id: 'Total_AHV_VMs', numeric: true, disablePadding: false, label: 'Total AHV VMs' },
-    { id: 'Running_App', numeric: true, disablePadding: false, label: 'Running App' },
-    { id: 'Percent_InUse', numeric: true, disablePadding: false, label: 'In Use (%)' },
-  ];
-
-  function SoftDeleteTableHead(props) {
-    const { classes, softDeleteOrder, softDeleteOrderBy, onRequestSort } = props;
-    const createSortHandler = (property) => (event) => {
-      onRequestSort(event, property);
-    };
-
-    return (
-      <TableHead>
-        <TableRow>
-          {softDeleteTableCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'default'}
-              sortDirection={softDeleteOrderBy === headCell.id ? softDeleteOrder : false}
-            >
-              <TableSortLabel
-                active={softDeleteOrderBy === headCell.id}
-                direction={softDeleteOrderBy === headCell.id ? softDeleteOrder : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {softDeleteOrderBy === headCell.id ? (
-                  <span className={classes.visuallyHidden}>
-                    {softDeleteOrder === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </span>
-                ) : null}
-              </TableSortLabel>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  }
-
-  SoftDeleteTableHead.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    softDeleteOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    softDeleteOrderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-  };
-
-  const SoftDeleteTableToolbar = (props) => {
-    const classes = useToolbarStyles();
-  
-    return (
-      <Toolbar>
-        {
-          <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-            Customers using Soft Delete
-          </Typography>
-        }
-      </Toolbar>
-    );
-  };
-  
-  SoftDeleteTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
-  };
-  
-  const handleRequestSoftDeleteSort = (event, property) => {
-    const isAsc = softDeleteOrderBy === property && softDeleteOrder === 'asc';
-    setSoftDeleteOrder(isAsc ? 'desc' : 'asc');
-    setSoftDeleteOrderBy(property);
-  };
-
-  const handleChangeSoftDeletePage = (event, newPage) => {
-    setSoftDeletePage(newPage);
-  };
-
-  const handleChangeRowsPerSoftDeletePage = (event) => {
-    setRowsPerSoftDeletePage(parseInt(event.target.value, 10));
-    setSoftDeletePage(0);
-  };
-
-  const handleChangeSoftDeleteDense = (event) => {
-    setSoftDeleteDense(event.target.checked);
-  };
-
-  const emptySoftDeleteRows = rowsPerSoftDeletePage - Math.min(rowsPerSoftDeletePage, softDeleteRows.length - softDeletePage * rowsPerSoftDeletePage);
+  const [SoftDelete, setSoftDelete] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'Customer' },
+      // { title: 'Cluster_ID', field: 'Cluster_ID'},
+      { title: 'Active AHV VMs', field: 'Active_AHV_VMs', type: 'numeric' },
+      { title: 'Total AHV VMs', field: 'Total_AHV_VMs', type: 'numeric' },
+      { title: 'Running APPs', field: 'Running_App', type: 'numeric' },
+      { title: 'In Use (%)', field: 'Percent_InUse', type: 'numeric' }
+    ],
+  });
 
   //Public Account Table
-  const [publicAccountOrder, setpublicAccountOrder] = React.useState('asc');
-  const [publicAccountOrderBy, setpublicAccountOrderBy] = React.useState('calories');
-  const [publicAccountPage, setPublicAccountPage] = React.useState(0);
-  const [publicAccountDense, setPublicAccountDense] = React.useState(false);
-  const [rowsPerPublicAccountPage, setRowsPerPublicAccountPage] = React.useState(5);
+  const [PublicAccount, setPublicAccount] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'Customer' },
+      { title: 'AWS', field: 'AWS', type: 'numeric' },
+      { title: 'AZURE', field: 'AZURE', type: 'numeric' },
+      // { title: 'GCP', field: 'GCP', type: 'numeric' }
+    ],
+  });
 
-  const publicAccountTableCells = [
-    { id: 'Customer', numeric: false, disablePadding: false, label: 'Customer' },
-    { id: 'AWS', numeric: true, disablePadding: false, label: 'AWS Account' },
-    { id: 'AZURE', numeric: true, disablePadding: false, label: 'AZURE Account' },
-    { id: 'GCP', numeric: true, disablePadding: false, label: 'GCP Account' },
-  ];
+  //License Table
+  const [License, setLicense] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'CUSTOMER' },
+      { title: 'Quarter', field: 'QTR_SOLD'},
+      { title: 'CALM TCV', field: 'CALM_TCV'},
+      { title: 'Quantity', field: 'QTY_SOLD', type: 'numeric' }
+    ],
+  });
 
-  function PublicAccountTableHead(props) {
-    const { classes, publicAccountOrder, publicAccountOrderBy, onRequestSort } = props;
-    const createSortHandler = (property) => (event) => {
-      onRequestSort(event, property);
-    };
-  
-    return (
-      <TableHead>
-        <TableRow>
-          {publicAccountTableCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'default'}
-              sortDirection={publicAccountOrderBy === headCell.id ? publicAccountOrder : false}
-            >
-              <TableSortLabel
-                active={publicAccountOrderBy === headCell.id}
-                direction={publicAccountOrderBy === headCell.id ? publicAccountOrder : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {publicAccountOrderBy === headCell.id ? (
-                  <span className={classes.visuallyHidden}>
-                    {publicAccountOrder === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </span>
-                ) : null}
-              </TableSortLabel>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-    );
-  }
+  //Support Table
+  const [Support, setSupport] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'Customer_Name' },
+      { title: 'Paid', field: 'Paid'},
+      { title: 'Cases', field: 'Value', type: 'numeric'},
+      
+    ],
+  });
 
-  PublicAccountTableHead.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onRequestSort: PropTypes.func.isRequired,
-    publicAccountOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    publicAccountOrderBy: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
-  };
-  
-  const PublicAccountTableToolbar = (props) => {
-    const classes = useToolbarStyles();
-  
-    return (
-      <Toolbar>
-        {
-          <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-            Customers vs Public Cloud
-          </Typography>
-        }
-      </Toolbar>
-    );
-  };
-  
-  PublicAccountTableToolbar.propTypes = {
-    numSelected: PropTypes.number.isRequired,
+  const tableIcons = {
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => <ChevronLeft {...props} ref={ref} />),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => <ArrowDownward {...props} ref={ref} />),
+    ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   };
 
-  const handleRequestPublicAccountSort = (event, property) => {
-    const isAsc = publicAccountOrderBy === property && publicAccountOrder === 'asc';
-    setpublicAccountOrder(isAsc ? 'desc' : 'asc');
-    setpublicAccountOrderBy(property);
-  };
-
-  const handleChangePublicAccountPage = (event, newPage) => {
-    setPublicAccountPage(newPage);
-  };
-
-  const handleChangeRowsPerPublicAcccountPage = (event) => {
-    setRowsPerPublicAccountPage(parseInt(event.target.value, 10));
-    setPublicAccountPage(0);
-  };
-
-  const handleChangePublicAccountDense = (event) => {
-    setPublicAccountDense(event.target.checked);
-  };
-
-  const emptyPublicAccountRows = rowsPerPublicAccountPage - Math.min(rowsPerPublicAccountPage, publicAccountRows.length - publicAccountPage * rowsPerPublicAccountPage);
- 
   return (
     <div className="App">
       <header className="App-header">
@@ -647,6 +310,18 @@ function App() {
             <TableRow>
             <TableCell>
               <TableRow>
+                <TableCell align="left">
+                  <Card className={classes.root} align="left">
+                    <CardContent>
+                      <Typography className={classes.title} color="textSecondary" gutterBottom>
+                        Paid Customers 
+                      </Typography>
+                      <Typography variant="h5" component="h2">
+                          {paid_customers}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </TableCell>
                 <TableCell align="left">
                   <Card className={classes.root} align="left">
                     <CardContent>
@@ -679,18 +354,6 @@ function App() {
                       </Typography>
                       <Typography variant="h5" component="h2">
                         {running_APPs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell>
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Provisionig APPs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {provisioning_APPs}
                       </Typography>
                     </CardContent>
                   </Card>
@@ -754,7 +417,7 @@ function App() {
                         Active Existing VMs
                       </Typography>
                       <Typography variant="h5" component="h2">
-                          {active_Existing_VMs}
+                        {active_Existing_VMs}
                       </Typography>
                     </CardContent>
                   </Card>
@@ -826,132 +489,38 @@ function App() {
             </TableRow> 
             <TableRow>
               <TableCell>
-                <div className={classes.root}>
-                  <Paper className={classes.paper}>
-                  <AdoptionRateTableToolbar/>
-                  <TableContainer>
-                    <Table
-                      className={classes.table}
-                      aria-labelledby="tableTitle"
-                      size={adoptionRateDense ? 'small' : 'medium'}
-                      aria-label="enhanced table"
-                    >
-                      <AdoptionRateTableHead
-                        classes={classes}
-                        adoptionRateOrder={adoptionRateOrder}
-                        adoptionRateOrderBy={adoptionRateOrderBy}
-                        onRequestSort={handleRequestAdoptionRateSort}
-                        rowCount={adoptionRateRows.length}
-                      />
-                      <TableBody>
-                        {stableSort(adoptionRateRows, getComparator(adoptionRateOrder, adoptionRateOrderBy))
-                          .slice(adoptionRatePage * rowsPerAdoptionRatePage, adoptionRatePage * rowsPerAdoptionRatePage + rowsPerAdoptionRatePage)
-                          .map((row, index) => {
-                            const labelId = `enhanced-table-checkbox-${index}`;
-
-                            return (
-                              <TableRow
-                                hover
-                                role="checkbox"
-                                tabIndex={-1}
-                                key={row.Name}
-                              >
-                                <TableCell component="th" id={labelId} scope="row">
-                                  {row.Name}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Value}
-                                </TableCell>
-                                </TableRow>
-                            );
-                          })}
-                        {emptyAdoptionRateRows > 0 && (
-                          <TableRow style={{ height: (adoptionRateDense ? 33 : 53) * emptyAdoptionRateRows }}>
-                            <TableCell colSpan={6} />
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={adoptionRateRows.length}
-                    rowsPerPage={rowsPerAdoptionRatePage}
-                    page={adoptionRatePage}
-                    onChangePage={handleChangeAdoptionRatePage}
-                    onChangeRowsPerPage={handleChangeRowsPerAdoptionRatePage}
-                  />
-                  </Paper>
-                  <FormControlLabel
-                  control={<Switch checked={adoptionRateDense} onChange={handleChangeAdoptionRateDense} />}
-                  label="Dense padding"
-                  />
-                </div>
+                <MaterialTable
+                icons={tableIcons}
+                title="License Purchased"
+                columns={License.columns}
+                data={licenseRows}
+                />  
               </TableCell>
               <TableCell>
-                <div className={classes.root}> 
-                  <Paper className={classes.paper}>
-                  <CalmVersionTableToolbar/>
-                  <TableContainer>
-                    <Table
-                      className={classes.table}
-                      aria-labelledby="tableTitle"
-                      size={calmVersionDense ? 'small' : 'medium'}
-                      aria-label="enhanced table"
-                    >
-                      <CalmVersionTableHead
-                        classes={classes}
-                        calmVersionOrder={calmVersionOrder}
-                        calmVersionOrderBy={calmVersionOrderBy}
-                        onRequestSort={handleRequestCalmVersionSort}
-                        rowCount={calmVersionRows.length}
-                      />
-                      <TableBody>
-                        {stableSort(calmVersionRows, getComparator(calmVersionOrder, calmVersionOrderBy))
-                          .slice(calmVersionPage * rowsPerCalmVersionPage, calmVersionPage * rowsPerCalmVersionPage + rowsPerCalmVersionPage)
-                          .map((row, index) => {
-                            const labelId = `enhanced-table-checkbox-${index}`;
-
-                            return (
-                              <TableRow
-                                hover
-                                role="checkbox"
-                                tabIndex={-1}
-                                key={row.Cluster_ID}
-                              >
-                                <TableCell component="th" id={labelId} scope="row">
-                                  {row.Version_Name}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Value}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        {emptyCalmVersionRows > 0 && (
-                          <TableRow style={{ height: (calmVersionDense ? 33 : 53) * emptyCalmVersionRows }}>
-                            <TableCell colSpan={6} />
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={calmVersionRows.length}
-                    rowsPerPage={rowsPerCalmVersionPage}
-                    page={calmVersionPage}
-                    onChangePage={handleChangeCalmVersionPage}
-                    onChangeRowsPerPage={handleChangeRowsPerCalmVersionPage}
-                  />
-                  </Paper>
-                  <FormControlLabel
-                  control={<Switch checked={calmVersionDense} onChange={handleChangeCalmVersionDense} />}
-                  label="Dense padding"
-                  />
-                </div>
+                <MaterialTable
+                icons={tableIcons}
+                title="Support Cases"
+                columns={Support.columns}
+                data={supportRows}
+                />  
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <MaterialTable
+                  icons={tableIcons}
+                  title="Customers Adoption Rate"
+                  columns={AdoptionRate.columns}
+                  data={adoptionRateRows}
+                />
+              </TableCell>
+              <TableCell>
+                <MaterialTable
+                  icons={tableIcons}
+                  title="Calm Versions vs Customers"
+                  columns={CalmVersionDistro.columns}
+                  data={calmVersionRows}
+                />
               </TableCell>
             </TableRow>
             <TableRow>
@@ -1004,151 +573,27 @@ function App() {
             </TableRow> 
             <TableRow>
               <TableCell>
-                <div className={classes.root}>
-                  <Paper className={classes.paper}>
-                  <SoftDeleteTableToolbar/>
-                  <TableContainer>
-                    <Table
-                      className={classes.table}
-                      aria-labelledby="tableTitle"
-                      size={softDeleteDense ? 'small' : 'medium'}
-                      aria-label="enhanced table"
-                    >
-                      <SoftDeleteTableHead
-                        classes={classes}
-                        softDeleteOrder={softDeleteOrder}
-                        softDeleteOrderBy={softDeleteOrderBy}
-                        onRequestSort={handleRequestSoftDeleteSort}
-                        rowCount={softDeleteRows.length}
-                      />
-                      <TableBody>
-                        {stableSort(softDeleteRows, getComparator(softDeleteOrder, softDeleteOrderBy))
-                          .slice(softDeletePage * rowsPerSoftDeletePage, softDeletePage * rowsPerSoftDeletePage + rowsPerSoftDeletePage)
-                          .map((row, index) => {
-                            const labelId = `enhanced-table-checkbox-${index}`;
-
-                            return (
-                              <TableRow
-                                hover
-                                role="checkbox"
-                                tabIndex={-1}
-                                key={row.Cluster_ID}
-                              >
-                                <TableCell component="th" id={labelId} scope="row">
-                                  {row.Customer}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Cluster_ID}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Active_AHV_VMs}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Total_AHV_VMs}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Running_App}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {row.Percent_InUse}
-                                </TableCell>
-                                </TableRow>
-                            );
-                          })}
-                        {emptySoftDeleteRows > 0 && (
-                          <TableRow style={{ height: (softDeleteDense ? 33 : 53) * emptySoftDeleteRows }}>
-                            <TableCell colSpan={6} />
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={softDeleteRows.length}
-                    rowsPerPage={rowsPerSoftDeletePage}
-                    page={softDeletePage}
-                    onChangePage={handleChangeSoftDeletePage}
-                    onChangeRowsPerPage={handleChangeRowsPerSoftDeletePage}
-                  />
-                  </Paper>
-                  <FormControlLabel
-                  control={<Switch checked={softDeleteDense} onChange={handleChangeSoftDeleteDense} />}
-                  label="Dense padding"
-                  />
-                </div>
+                <MaterialTable
+                  icons={tableIcons}
+                  title="Soft Delete Customers"
+                  columns={SoftDelete.columns}
+                  data={softDeleteRows}
+                />
               </TableCell>
               <TableCell>
-                <div className={classes.root}>
-                  <Paper className={classes.paper}>
-                  <PublicAccountTableToolbar/>
-                  <TableContainer>
-                    <Table
-                      className={classes.table}
-                      aria-labelledby="tableTitle"
-                      size={publicAccountDense ? 'small' : 'medium'}
-                      aria-label="enhanced table"
-                    >
-                      <PublicAccountTableHead
-                        classes={classes}
-                        publicAccountOrder={publicAccountOrder}
-                        publicAccountOrderBy={publicAccountOrderBy}
-                        onRequestSort={handleRequestPublicAccountSort}
-                        rowCount={publicAccountRows.length}
-                      />
-                      <TableBody>
-                        {stableSort(publicAccountRows, getComparator(publicAccountOrder, publicAccountOrderBy))
-                          .slice(publicAccountPage * rowsPerPublicAccountPage, publicAccountPage * rowsPerPublicAccountPage + rowsPerPublicAccountPage)
-                          .map((row, index) => {
-                            const labelId = `enhanced-table-checkbox-${index}`;
-
-                            return (
-                              <TableRow
-                                hover
-                                role="checkbox"
-                                tabIndex={-1}
-                                key={row.name}
-                              >
-                                <TableCell component="th" id={labelId} scope="row">
-                                  {row.Customer}
-                                </TableCell>
-                                <TableCell align="right">{row.AWS}</TableCell>
-                                <TableCell align="right">{row.AZURE}</TableCell>
-                                <TableCell align="right">{row.GCP}</TableCell>
-                                </TableRow>
-                            );
-                          })}
-                        {emptyPublicAccountRows > 0 && (
-                          <TableRow style={{ height: (publicAccountDense ? 33 : 53) * emptyPublicAccountRows }}>
-                            <TableCell colSpan={6} />
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={publicAccountRows.length}
-                    rowsPerPage={rowsPerPublicAccountPage}
-                    page={publicAccountPage}
-                    onChangePage={handleChangePublicAccountPage}
-                    onChangeRowsPerPage={handleChangeRowsPerPublicAcccountPage}
-                  />
-                  </Paper>
-                  <FormControlLabel
-                  control={<Switch checked={publicAccountDense} onChange={handleChangePublicAccountDense} />}
-                  label="Dense padding"
-                  />
-                </div>
+                <MaterialTable
+                icons={tableIcons}
+                title="Customers using Public Cloud"
+                columns={PublicAccount.columns}
+                data={publicAccountRows}
+                />  
               </TableCell>
             </TableRow>
-           </TableBody>     
+            
+          </TableBody>     
         </Table>
       </header>
     </div>
-    
   );
 }
 

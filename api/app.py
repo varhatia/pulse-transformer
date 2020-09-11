@@ -22,13 +22,6 @@ db=SQLAlchemy(app)
 # files_path="."
 quarter_to_show= "Q12021"
 
-
-
-
-
-
-
-
 if(db is None):
     print("DB not init")
 
@@ -74,7 +67,6 @@ class Data(db.Model):
     VMWARE_ACCOUNT = db.Column(db.Integer)
     PUBLIC_ACCOUNT = db.Column(db.Integer)
 
-
     def __init__(self, PC_Cluster_UUID, Customer_Name, Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, Last_Reported_Date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP,
         DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS,
         ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
@@ -119,6 +111,36 @@ class Data(db.Model):
         self.GCP_ACCOUNT = GCP_ACCOUNT
         self.PUBLIC_ACCOUNT = PUBLIC_ACCOUNT
 
+class SalesData(db.Model):
+    __tablename__="sfdc_data"
+    id = db.Column(db.Integer, primary_key=True)
+    CUSTOMER_NAME = db.Column(db.String(120))
+    QTR_SOLD = db.Column(db.String(10))
+    QTY_SOLD = db.Column(db.Integer())
+    PRODUCT_CODE = db.Column(db.String(50))
+    CALM_TCV = db.Column(db.String(50))
+
+    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV):
+        
+        self.CUSTOMER_NAME = CUSTOMER_NAME
+        self.QTR_SOLD = QTR_SOLD
+        self.PRODUCT_CODE = PRODUCT_CODE
+        self.QTY_SOLD = QTY_SOLD
+        self.CALM_TCV = CALM_TCV
+
+class SupportData(db.Model):
+    __tablename__="support_data"
+    id = db.Column(db.Integer, primary_key=True)
+    CUSTOMER_NAME = db.Column(db.String(120))
+    CASE_NUM = db.Column(db.Integer)
+    DATE = db.Column(db.Date)
+
+    def __init__(self, CUSTOMER_NAME, CASE_NUM, DATE):
+        
+        self.CUSTOMER_NAME = CUSTOMER_NAME
+        self.CASE_NUM = CASE_NUM
+        self.DATE = DATE
+        
 def quarter(i):
     switcher={
         1:'Q2',
@@ -139,181 +161,251 @@ def quarter(i):
 @app.route("/")
 def __intialize():
     
-    excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
+    # excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
+    
+    # for excel in excelList:
+
+    #     wb = openpyxl.load_workbook(excel)
+    #     # print(wb.sheetnames)
+
+    #     sheet = wb.active
+    #     row_count = sheet.max_row
+    #     column_count = sheet.max_column
+        
+    #     #getQuarter from filename
+    #     print("Quarter is : ", excel[-11:-5])
+    #     QUARTER = excel[-11:-5]
+
+    #     version_dict = {}
+
+    #     for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+    #         #print("PC_Cluster_UUID : ", row[0].value) #1
+    #         PC_Cluster_UUID = row[0].value
+            
+    #         #print("Customer_Name : ", row[2].value)
+    #         Customer_Name = row[2].value
+            
+    #         #print("Account_Theater : ", row[5].value) #6
+    #         Account_Theater = row[5].value
+
+    #         #print("PC_VERSION : ", row[8].value)    #9
+    #         PC_VERSION = row[8].value
+
+    #         #print("CALM_VERSION : ", row[9].value)   #10
+    #         CALM_VERSION = row[9].value
+            
+    #         #print("EPSILON_VERSION : ", row[10].value) #11
+    #         EPSILON_VERSION = row[10].value
+
+    #         #print("Last_Reported_Date : ", row[11].value) #12
+    #         Last_Reported_Date = row[11].value
+    #         if(Last_Reported_Date is not None):
+    #             date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
+    #         else:
+    #             date = ""
+            
+    #         #print("ACTIVE_BP : ", row[12].value)       #13  
+    #         ACTIVE_BP = row[12].value
+
+    #         #print("RUNNING_APP : ", row[16].value)	    #16
+    #         RUNNING_APP = row[16].value
+
+    #         #print("PROVISIONING_APP : ", row[17].value) #18
+    #         PROVISIONING_APP = row[17].value
+
+    #         #print("ERROR_APP : ", row[18].value) #19	
+    #         ERROR_APP = row[18].value
+
+    #         #print("DELETED_APP : ", row[19].value)	#20
+    #         DELETED_APP = row[19].value
+
+    #         #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
+    #         TOTAL_MANAGED_VMS = row[20].value
+
+    #         #print("TOTAL_AHV_VMS : ", row[21].value)	#22
+    #         TOTAL_AHV_VMS = row[21].value
+
+    #         #print("TOTAL_AWS_VMS : ", row[22].value) #23
+    #         TOTAL_AWS_VMS = row[22].value
+            
+    #         #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
+    #         TOTAL_VMWARE_VMS = row[23].value
+            
+    #         #print("TOTAL_GCP_VMS : ", row[24].value) #25
+    #         TOTAL_GCP_VMS = row[24].value
+            
+    #         #print("TOTAL_AZURE_VMS : ", row[25].value) #26
+    #         TOTAL_AZURE_VMS = row[25].value
+            
+    #         #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
+    #         TOTAL_EXISTING_VMS = row[26].value
+            
+    #         #print("TOTAL_K8S_POD : ", row[27].value) #28
+    #         TOTAL_K8S_POD = row[27].value
+            
+    #         #print("ACTIVE_AHV_VMS : ", row[28].value) #29
+    #         ACTIVE_AHV_VMS = row[28].value
+            
+    #         #print("ACTIVE_AWS_VMS : ", row[29].value) #30
+    #         ACTIVE_AWS_VMS = row[29].value
+            
+    #         #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
+    #         ACTIVE_VMWARE_VMS = row[30].value
+            
+    #         #print("ACTIVE_GCP_VMS : ", row[31].value) #32
+    #         ACTIVE_GCP_VMS = row[31].value
+            
+    #         #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
+    #         ACTIVE_AZURE_VMS = row[32].value
+            
+    #         #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
+    #         ACTIVE_EXISTING_VMS = row[33].value
+            
+    #         #print("ACTIVE_K8S_POD : ", row[34].value) #35
+    #         ACTIVE_K8S_POD = row[34].value
+            
+    #         #print("AWS_ACCOUNT : ", row[35].value) #36
+    #         AWS_ACCOUNT = row[35].value
+            
+    #         #print("VMWARE_ACCOUNT : ", row[36].value) #37
+    #         VMWARE_ACCOUNT = row[36].value
+            
+    #         #print("GCP_ACCOUNT : ", row[37].value) #38
+    #         GCP_ACCOUNT = row[37].value
+            
+    #         #print("AZURE_ACCOUNT : ", row[38].value) #39
+    #         AZURE_ACCOUNT = row[38].value
+
+    #         #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
+    #         LICENSE_VMS_COUNTS = row[44].value
+            
+    #         #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
+    #         LICENSE_UNIQUE_VMS_COUNT = row[45].value
+            
+    #         #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
+    #         LICENSE_REQUIRED_PACKS = row[46].value                 
+
+    #         if(Customer_Name is not None):
+
+    #             if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name)):
+    #                 # print("Handling Ntnx acccounts. So skipping")
+    #                 continue
+
+    #             if(CALM_VERSION in version_dict):
+    #                 x = version_dict[CALM_VERSION]
+    #                 version_dict[CALM_VERSION] = x+1  
+    #             else:
+    #                 version_dict[CALM_VERSION] = 1
+                
+    #             # #current quarter
+    #             # current_time = datetime.datetime.utcnow()
+    #             # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
+
+    #             #Adoption
+    #             if(LICENSE_REQUIRED_PACKS is not None):
+    #                 if(LICENSE_REQUIRED_PACKS != 0):
+    #                     ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
+                        
+    #                 else:
+    #                     ADOPTION = -1    
+    #             else:
+    #                 ADOPTION = -1
+
+    #             #Softdelete
+    #             if(TOTAL_AHV_VMS is not None):
+    #                 if(TOTAL_AHV_VMS != 0):
+    #                     PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
+                    
+    #                 else:
+    #                     PERCENT_VMs_INUSE = -1   
+    #             else:
+    #                 PERCENT_VMs_INUSE = -1
+                
+    #             #Public Account
+    #             if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
+    #                 PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
+                
+    #             else:
+    #                 PUBLIC_ACCOUNT = -1
+
+    #             #Populate the Data
+    #             data=Data(PC_Cluster_UUID, Customer_Name, Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
+    #             AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
+                
+    #             db.session.add(data)
+    #             print("Entered Data for customer : ", Customer_Name)    
+        
+    #     db.session.commit()
+
+    excelList = ["Calm_Licenses_Sold-FY'20.xlsx"]
     
     for excel in excelList:
 
         wb = openpyxl.load_workbook(excel)
-        # print(wb.sheetnames)
+        print(wb.sheetnames)
 
         sheet = wb.active
         row_count = sheet.max_row
         column_count = sheet.max_column
+        print("Sheet Name is :", sheet)
         
-        #getQuarter from filename
-        print("Quarter is : ", excel[-11:-5])
-        QUARTER = excel[-11:-5]
-
-        version_dict = {}
+        # print("Quarter is : ", excel[-11:-5])
+        # QUARTER = excel[-11:-5]
 
         for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-            #print("PC_Cluster_UUID : ", row[0].value) #1
-            PC_Cluster_UUID = row[0].value
+            ACCOUNT_NAME = row[0].value
             
-            #print("Customer_Name : ", row[2].value)
-            Customer_Name = row[2].value
+            QUARTER_SOLD = row[1].value
             
-            #print("Account_Theater : ", row[5].value) #6
-            Account_Theater = row[5].value
+            PRODUCT_CODE = row[2].value
 
-            #print("PC_VERSION : ", row[8].value)    #9
-            PC_VERSION = row[8].value
+            QTY_SOLD = row[3].value
 
-            #print("CALM_VERSION : ", row[9].value)   #10
-            CALM_VERSION = row[9].value
-            
-            #print("EPSILON_VERSION : ", row[10].value) #11
-            EPSILON_VERSION = row[10].value
+            CALM_TCV = row[7].value
 
-            #print("Last_Reported_Date : ", row[11].value) #12
-            Last_Reported_Date = row[11].value
-            if(Last_Reported_Date is not None):
-                date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
-            else:
-                date = ""
-            
-            #print("ACTIVE_BP : ", row[12].value)       #13  
-            ACTIVE_BP = row[12].value
-
-            #print("RUNNING_APP : ", row[16].value)	    #16
-            RUNNING_APP = row[16].value
-
-            #print("PROVISIONING_APP : ", row[17].value) #18
-            PROVISIONING_APP = row[17].value
-
-            #print("ERROR_APP : ", row[18].value) #19	
-            ERROR_APP = row[18].value
-
-            #print("DELETED_APP : ", row[19].value)	#20
-            DELETED_APP = row[19].value
-
-            #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
-            TOTAL_MANAGED_VMS = row[20].value
-
-            #print("TOTAL_AHV_VMS : ", row[21].value)	#22
-            TOTAL_AHV_VMS = row[21].value
-
-            #print("TOTAL_AWS_VMS : ", row[22].value) #23
-            TOTAL_AWS_VMS = row[22].value
-            
-            #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
-            TOTAL_VMWARE_VMS = row[23].value
-            
-            #print("TOTAL_GCP_VMS : ", row[24].value) #25
-            TOTAL_GCP_VMS = row[24].value
-            
-            #print("TOTAL_AZURE_VMS : ", row[25].value) #26
-            TOTAL_AZURE_VMS = row[25].value
-            
-            #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
-            TOTAL_EXISTING_VMS = row[26].value
-            
-            #print("TOTAL_K8S_POD : ", row[27].value) #28
-            TOTAL_K8S_POD = row[27].value
-            
-            #print("ACTIVE_AHV_VMS : ", row[28].value) #29
-            ACTIVE_AHV_VMS = row[28].value
-            
-            #print("ACTIVE_AWS_VMS : ", row[29].value) #30
-            ACTIVE_AWS_VMS = row[29].value
-            
-            #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
-            ACTIVE_VMWARE_VMS = row[30].value
-            
-            #print("ACTIVE_GCP_VMS : ", row[31].value) #32
-            ACTIVE_GCP_VMS = row[31].value
-            
-            #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
-            ACTIVE_AZURE_VMS = row[32].value
-            
-            #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
-            ACTIVE_EXISTING_VMS = row[33].value
-            
-            #print("ACTIVE_K8S_POD : ", row[34].value) #35
-            ACTIVE_K8S_POD = row[34].value
-            
-            #print("AWS_ACCOUNT : ", row[35].value) #36
-            AWS_ACCOUNT = row[35].value
-            
-            #print("VMWARE_ACCOUNT : ", row[36].value) #37
-            VMWARE_ACCOUNT = row[36].value
-            
-            #print("GCP_ACCOUNT : ", row[37].value) #38
-            GCP_ACCOUNT = row[37].value
-            
-            #print("AZURE_ACCOUNT : ", row[38].value) #39
-            AZURE_ACCOUNT = row[38].value
-
-            #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
-            LICENSE_VMS_COUNTS = row[44].value
-            
-            #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
-            LICENSE_UNIQUE_VMS_COUNT = row[45].value
-            
-            #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
-            LICENSE_REQUIRED_PACKS = row[46].value                 
-
-            if(Customer_Name is not None):
-
-                if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name)):
-                    # print("Handling Ntnx acccounts. So skipping")
-                    continue
-
-                if(CALM_VERSION in version_dict):
-                    x = version_dict[CALM_VERSION]
-                    version_dict[CALM_VERSION] = x+1  
-                else:
-                    version_dict[CALM_VERSION] = 1
-                
-                # #current quarter
-                # current_time = datetime.datetime.utcnow()
-                # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
-
-                #Adoption
-                if(LICENSE_REQUIRED_PACKS is not None):
-                    if(LICENSE_REQUIRED_PACKS != 0):
-                        ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
-                        
-                    else:
-                        ADOPTION = -1    
-                else:
-                    ADOPTION = -1
-
-                #Softdelete
-                if(TOTAL_AHV_VMS is not None):
-                    if(TOTAL_AHV_VMS != 0):
-                        PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
-                    
-                    else:
-                        PERCENT_VMs_INUSE = -1   
-                else:
-                    PERCENT_VMs_INUSE = -1
-                
-                #Public Account
-                if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
-                    PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
-                
-                else:
-                    PUBLIC_ACCOUNT = -1
+            if(ACCOUNT_NAME is not None):
 
                 #Populate the Data
-                data=Data(PC_Cluster_UUID, Customer_Name, Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
-                AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
+                salesData = SalesData(ACCOUNT_NAME, QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV)
                 
-                db.session.add(data)
-                print("Entered Data for customer : ", Customer_Name)    
+                db.session.add(salesData)
+                print("Entered Data for Account : ", ACCOUNT_NAME)    
         
         db.session.commit()
+
+    # return ""
+
+    # excelList = ["Calm_Cases.xlsx"]
+    
+    # for excel in excelList:
+
+    #     wb = openpyxl.load_workbook(excel)
+    #     print(wb.sheetnames)
+
+    #     sheet = wb.active
+    #     row_count = sheet.max_row
+    #     column_count = sheet.max_column
+    #     print("Sheet Name is :", sheet)
+        
+    #     # print("Quarter is : ", excel[-11:-5])
+    #     # QUARTER = excel[-11:-5]
+
+    #     for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+    #         ACCOUNT_NAME = row[1].value
+            
+    #         CASE_NUM = row[0].value
+            
+    #         CLOSED_DATE = row[5].value
+
+    #         if(ACCOUNT_NAME is not None):
+
+    #             #Populate the Data
+    #             supportData = SupportData(ACCOUNT_NAME, CASE_NUM, CLOSED_DATE)
+                
+    #             db.session.add(supportData)
+    #             print("Entered Data for Account : ", ACCOUNT_NAME)    
+        
+    #     db.session.commit()
 
     return ""
 
@@ -364,7 +456,9 @@ def getStats():
         print(average_adoption)
         print(type(average_adoption))
         print(round(average_adoption, 2))
-        
+
+        unique_paid_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct().count()
+
         stats['active_customers'] = num_of_active_customers
         stats['active_BPs'] = num_of_active_BPs
         stats['running_APPs'] = num_of_running_APPs
@@ -378,7 +472,8 @@ def getStats():
         stats['licensed_unique_VMs'] = num_of_licensed_unique_VMs 
         stats['licenses_required'] = num_of_licenses_required
         stats['avg_adoption'] = round(average_adoption, 2)
-        
+        stats['paid_customers'] = unique_paid_customers
+
     return stats
 
 @app.route("/getAdoption", methods=['GET'])
@@ -729,6 +824,64 @@ def getReportedDataSinceDays(num):
 
     return sinceDays
 
+@app.route("/getLicenseData", methods=['GET'])
+def getLicenseData():
+    licenses_purchased = db.session.query(SalesData).all()
+    license_records = []
+    for record in licenses_purchased:
+        license_record = {}
+        license_record["CUSTOMER"] = record.CUSTOMER_NAME
+        license_record["QTY_SOLD"] = record.QTY_SOLD
+        license_record["QTR_SOLD"] = record.QTR_SOLD
+        license_record["CALM_TCV"] = record.CALM_TCV
+
+        license_records.append(license_record)
+
+    print(license_records)
+    
+    return jsonify({'License Records': license_records})
+
+@app.route("/getSupportData", methods=['GET'])
+def getSupportData():
+    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).all()
+    paid_customers = []
+    for record in licenses_purchased:
+        print("Cust name ", record.CUSTOMER_NAME)
+        if(record.CUSTOMER_NAME not in paid_customers):
+            paid_customers.append(record.CUSTOMER_NAME)
+    
+    print("Paid CUstomers: ", paid_customers)
+
+    support_data = db.session.query(SupportData).all()
+
+    support_records = []
+    support_dict = {}
+    for record in support_data:
+        
+        customer = record.CUSTOMER_NAME
+    
+        if(customer in support_dict):
+            x = support_dict[customer]
+            support_dict[customer] = x+1  
+        else:
+            support_dict[customer] = 1
+
+    print(support_dict)
+    # return support_dict
+    for key in support_dict:
+        support_record = {}
+        support_record["Customer_Name"] = key
+        support_record["Value"] = support_dict[key]
+        if(key in paid_customers):
+            support_record["Paid"] = "Yes"
+        else:
+            support_record["Paid"] = "No"
+
+        support_records.append(support_record)
+
+    print(support_records)
+
+    return jsonify({'Support records': support_records})
 
 UPLOAD_FOLDER = '/Users/vishal.arhatia/pulse-transformer/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
