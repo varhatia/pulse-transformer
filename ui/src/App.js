@@ -2,26 +2,21 @@ import React, { useState, useEffect } from 'react';
 import logo from './Calm.png';
 import './App.css';
 import axios from 'axios';
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
-import TableContainer from '@material-ui/core/TableContainer';
 import Paper from '@material-ui/core/Paper';
-import TablePagination from '@material-ui/core/TablePagination';
-import Toolbar from '@material-ui/core/Toolbar';
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import PropTypes from 'prop-types';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
+
 import MaterialTable from 'material-table';
 import AddBox from '@material-ui/icons/AddBox';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
@@ -52,11 +47,13 @@ function App() {
   // const [active_GCP_VMs, setActiveGCPVMs] = useState(0);
   const [active_Existing_VMs, setActiveExistingVMs] = useState(0);
   const [paid_customers, setPaidCustomers] = useState(0);
+  const [paid_customers_list, setPaidCustomersList] = useState([]);
   const [licensed_unique_VMs, setLicensedUniqueVMs] = useState(0);
   const [licenses_required, setLicensesRequired] = useState(0);
   const [avg_adoption, setAvgAdoption] = useState(0);
   
   const [qtrRows, setQtrRows] = useState([]);
+  const [custData, setCustData] = useState([]);
   const [providerQtrRows, setProviderQtrRows] = useState([]);
   const [calmVersionRows, setCalmVersionRows] = useState([]);
   const [softDeleteRows, setSoftDeleteRows] = useState([]);
@@ -67,6 +64,7 @@ function App() {
   const [withinRange, setWithinRange] = useState(0);
   
   const [index, setIndex] = useState(4);
+  const [custName, setCustName] = useState();
   // const [file, setFile] = useState({});
   
   const handleSubmit = event => {
@@ -74,6 +72,13 @@ function App() {
     fetchData();
   };
 
+  const handleCustomerChart = event => {
+    // event.preventDefault();
+    console.log(event.value);
+    getCustomerDetails(event.value);
+  };
+
+  
   const useStyles = makeStyles({
     bullet: {
       display: 'inline-block',
@@ -110,14 +115,29 @@ function App() {
   });
   
   const classes = useStyles();
-  
+
   async function fetchData() {
     console.log(index)
     const { data } = await axios.get('http://localhost:5000/getReportedDataSinceDays/'+index)
     setWithinRange(data["Within Range"])
   };
 
+  async function getCustomerDetails(custName) {
+    console.log(custName)
+    setCustName(custName)
+    await axios.get('http://localhost:5000/getCustomerDetails/'+custName).then(data => {
+      var rows = []
+      // var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data.data["Customer Details"])
+      setCustData(rows)
+    });
+  };
+
+
   useEffect(() => {
+
     fetch('/getStats').then(res => res.json()).then(data => {
       setActive_Customers(data.active_customers);
       setActive_BPs(data.active_BPs);
@@ -199,6 +219,16 @@ function App() {
       setWithinRange(data["Within Range"])
     })
 
+    fetch('/getCustomerDetails/Celero').then(res => res.json()).then(data => {
+      var rows = []
+      var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data)
+      rows[0].map(item => tRows.push(item))
+      setCustData(tRows)
+    })
+
     fetch('/getLicenseData').then(res => res.json()).then(data => {
       var rows = []
       var tRows = []
@@ -219,6 +249,15 @@ function App() {
       setSupportRows(tRows)
     })
 
+    fetch('/getPaidCustomersList').then(res => res.json()).then(data => {
+      var rows = []
+      var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data)
+      rows[0].map(item => tRows.push(item))
+      setPaidCustomersList(tRows)
+    })
   }, []);
 
   //Adoption Table
@@ -299,6 +338,8 @@ function App() {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   };
 
+  const defaultOption = paid_customers_list[0];
+  
   return (
     <div className="App">
       <header className="App-header">
@@ -308,293 +349,337 @@ function App() {
         <Table>
           <TableBody>
             <TableRow>
-            <TableCell>
-              <TableRow>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Paid Customers 
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                          {paid_customers}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active Customers 
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_customers}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active BPs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_BPs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell>
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Running APPs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {running_APPs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
+              <TableCell>
+                <TableRow>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Managed VMs
+                          Paid Customers 
                         </Typography>
                         <Typography variant="h5" component="h2">
-                          {managed_VM}
+                            {paid_customers}
                         </Typography>
                       </CardContent>
                     </Card>
-                </TableCell>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active AHV VMs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_AHV_VMs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active Customers 
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_customers}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active BPs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_BPs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell>
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Running APPs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {running_APPs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                        <CardContent>
+                          <Typography className={classes.title} color="textSecondary" gutterBottom>
+                            Managed VMs
+                          </Typography>
+                          <Typography variant="h5" component="h2">
+                            {managed_VM}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active AHV VMs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_AHV_VMs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell>
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active AWS VMs 
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_AWS_VMs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell>
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active VMWare VMs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_VMWare_VMs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Active Existing VMs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {active_Existing_VMs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell>
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Unique Licensed VMs
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {licensed_unique_VMs}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Required Licenses
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                            {licenses_required}
+                        </Typography>
+                      </CardContent>
+                      </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Average Adoption 
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                            {avg_adoption} %
+                        </Typography>
+                      </CardContent>
+                      </Card>
+                  </TableCell>
+                </TableRow>
+              </TableCell>
+              <TableCell>
+                {/* <form onSubmit={handleUploadImage}>
+                  <div>
+                    <input type="file" name="file"
+                    onChange={event => setFile(event.target.files[0])}
+                    />
+                  </div>
+                    <br />
+                  <div>
+                    <button>Upload</button>
+                  </div>
+                </form> */}
+                  <form onSubmit={handleSubmit}>
+                    <label><strong>{withinRange}</strong> Active customers reported data within last <strong>{index}</strong> weeks </label>
+                    <br></br>
+                    <br></br>
+                    <label>Customize weeks </label>
+                    <input
+                    value={index}
+                    label="Enter X "
+                    onChange={event => setIndex(event.target.value)}
+                    />
+                    <button>Submit</button>
+                  {/* <h3>Within Range Customers : {withinRange}</h3> */}
+                </form>
+              </TableCell>
+              </TableRow> 
+              <TableRow>
+                <TableCell>
+                  <MaterialTable
+                  icons={tableIcons}                                                                                     a           title="License Purchased"
+                  columns={License.columns}
+                  data={licenseRows}
+                  />  
                 </TableCell>
                 <TableCell>
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active AWS VMs 
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_AWS_VMs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell>
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active VMWare VMs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_VMWare_VMs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                  <MaterialTable
+                  icons={tableIcons}
+                  title="Support Cases"
+                  columns={Support.columns}
+                  data={supportRows}
+                  />  
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Active Existing VMs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {active_Existing_VMs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                <TableCell>
+                  <MaterialTable
+                    icons={tableIcons}
+                    title="Customers Adoption Rate"
+                    columns={AdoptionRate.columns}
+                    data={adoptionRateRows}
+                  />
                 </TableCell>
                 <TableCell>
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Unique Licensed VMs
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                        {licensed_unique_VMs}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </TableCell>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Required Licenses
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                          {licenses_required}
-                      </Typography>
-                    </CardContent>
-                    </Card>
-                </TableCell>
-                <TableCell align="left">
-                  <Card className={classes.root} align="left">
-                    <CardContent>
-                      <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Average Adoption 
-                      </Typography>
-                      <Typography variant="h5" component="h2">
-                          {avg_adoption} %
-                      </Typography>
-                    </CardContent>
-                    </Card>
+                  <MaterialTable
+                    icons={tableIcons}
+                    title="Calm Versions vs Customers"
+                    columns={CalmVersionDistro.columns}
+                    data={calmVersionRows}
+                  />
                 </TableCell>
               </TableRow>
-            </TableCell>
-            <TableCell>
-              {/* <form onSubmit={handleUploadImage}>
-                <div>
-                  <input type="file" name="file"
-                  onChange={event => setFile(event.target.files[0])}
-                  />
-                </div>
-                  <br />
-                <div>
-                  <button>Upload</button>
-                </div>
-              </form> */}
-                <form onSubmit={handleSubmit}>
-                  <label><strong>{withinRange}</strong> Active customers reported data within last <strong>{index}</strong> weeks </label>
-                  <br></br>
-                  <br></br>
-                  <label>Customize weeks </label>
-                  <input
-                  value={index}
-                  label="Enter X "
-                  onChange={event => setIndex(event.target.value)}
-                  />
-                  <button>Submit</button>
-                {/* <h3>Within Range Customers : {withinRange}</h3> */}
-              </form>
-            </TableCell>
-            </TableRow> 
-            <TableRow>
-              <TableCell>
-                <MaterialTable
-                icons={tableIcons}
-                title="License Purchased"
-                columns={License.columns}
-                data={licenseRows}
-                />  
-              </TableCell>
-              <TableCell>
-                <MaterialTable
-                icons={tableIcons}
-                title="Support Cases"
-                columns={Support.columns}
-                data={supportRows}
-                />  
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <MaterialTable
-                  icons={tableIcons}
-                  title="Customers Adoption Rate"
-                  columns={AdoptionRate.columns}
-                  data={adoptionRateRows}
-                />
-              </TableCell>
-              <TableCell>
-                <MaterialTable
-                  icons={tableIcons}
-                  title="Calm Versions vs Customers"
-                  columns={CalmVersionDistro.columns}
-                  data={calmVersionRows}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Paper>
-                  <h3>QoQ VMs, BPs, Apps growth</h3>
+              <TableRow>
+                <TableCell>
+                  <Paper>
+                    <h3>QoQ VMs, BPs, Apps growth</h3>
+                    <BarChart
+                  width={500}
+                  height={300}
+                  data={qtrRows}
+                  margin={{
+                  top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                  > 
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="ActiveVMs" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="APPs" stackId="a" fill="#d8bb84" />
+                  </BarChart>
+                  </Paper>
+                </TableCell>
+                <TableCell>
+                  <Paper>
+                  <h3>QoQ Providers growth</h3>
                   <BarChart
-                width={500}
-                height={300}
-                data={qtrRows}
-                margin={{
-                top: 20, right: 30, left: 20, bottom: 5,
-                }}
-                > 
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="ActiveVMs" stackId="a" fill="#8884d8" />
-                <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
-                <Bar dataKey="APPs" stackId="a" fill="#d8bb84" />
-                </BarChart>
-                </Paper>
-              </TableCell>
-              <TableCell>
-                <Paper>
-                <h3>QoQ Providers growth</h3>
-                <BarChart
-                width={500}
-                height={300}
-                data={providerQtrRows}
-                margin={{
-                top: 20, right: 30, left: 20, bottom: 5,
-                }}
-                > 
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="AHV" stackId="a" fill="#8884d8" />
-                <Bar dataKey="VMWare" stackId="a" fill="#82ca9d" />
-                <Bar dataKey="AWS" stackId="a" fill="#d8bb84" />
-                <Bar dataKey="AZURE" stackId="a" fill="#d5d884" />
-                <Bar dataKey="GCP" stackId="a" fill="#d88584" />
-                </BarChart>
+                  width={500}
+                  height={300}
+                  data={providerQtrRows}
+                  margin={{
+                  top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                  > 
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="AHV" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="VMWare" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="AWS" stackId="a" fill="#d8bb84" />
+                  <Bar dataKey="AZURE" stackId="a" fill="#d5d884" />
+                  <Bar dataKey="GCP" stackId="a" fill="#d88584" />
+                  </BarChart>
+                  </Paper>
+                </TableCell>
+              </TableRow> 
+              <TableRow>
+                <TableCell>
+                  <MaterialTable
+                    icons={tableIcons}
+                    title="Soft Delete Customers"
+                    columns={SoftDelete.columns}
+                    data={softDeleteRows}
+                  />
+                </TableCell>
+                <TableCell>
+                  <MaterialTable
+                  icons={tableIcons}
+                  title="Customers using Public Cloud"
+                  columns={PublicAccount.columns}
+                  data={publicAccountRows}
+                  />  
+                </TableCell>
+              </TableRow>
+              <Dropdown options={paid_customers_list} onChange={handleCustomerChart} value={defaultOption} placeholder="Select an option" />
+              <TableRow>
+                <TableCell>
+                  <Paper>
+                    <h3>QoQ VMs, BPs, Apps growth</h3>
+                    <BarChart
+                  width={500}
+                  height={300}
+                  data={custData}
+                  margin={{
+                  top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                  > 
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="APPs" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="VMs" stackId="a" fill="#d8bb84" />
+                  </BarChart>
+                  </Paper>
+                </TableCell>
+                <TableCell>
+                  <Paper>
+                    <LineChart
+                    width={500}
+                    height={300}
+                    data={custData}
+                    margin={{
+                    top: 5, right: 30, left: 20, bottom: 5,
+                    }}
+                    >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="APPs" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="BPs" stroke="#82ca9d" />
+                    <Line type="monotone" dataKey="VMs" stroke="#d8bb84" />
+                  </LineChart>
                 </Paper>
               </TableCell>
             </TableRow> 
-            <TableRow>
-              <TableCell>
-                <MaterialTable
-                  icons={tableIcons}
-                  title="Soft Delete Customers"
-                  columns={SoftDelete.columns}
-                  data={softDeleteRows}
-                />
-              </TableCell>
-              <TableCell>
-                <MaterialTable
-                icons={tableIcons}
-                title="Customers using Public Cloud"
-                columns={PublicAccount.columns}
-                data={publicAccountRows}
-                />  
-              </TableCell>
-            </TableRow>
-            
           </TableBody>     
         </Table>
       </header>
     </div>
-  );
+  )
 }
 
 export default App 

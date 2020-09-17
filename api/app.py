@@ -161,181 +161,182 @@ def quarter(i):
 @app.route("/")
 def __intialize():
     
-    # excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
+    excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
     
-    # for excel in excelList:
+    for excel in excelList:
 
-    #     wb = openpyxl.load_workbook(excel)
-    #     # print(wb.sheetnames)
+        wb = openpyxl.load_workbook(excel)
+        # print(wb.sheetnames)
 
-    #     sheet = wb.active
-    #     row_count = sheet.max_row
-    #     column_count = sheet.max_column
+        sheet = wb.active
+        row_count = sheet.max_row
+        column_count = sheet.max_column
         
-    #     #getQuarter from filename
-    #     print("Quarter is : ", excel[-11:-5])
-    #     QUARTER = excel[-11:-5]
+        #getQuarter from filename
+        print("Quarter is : ", excel[-11:-5])
+        QUARTER = excel[-11:-5]
 
-    #     version_dict = {}
+        version_dict = {}
 
-    #     for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-    #         #print("PC_Cluster_UUID : ", row[0].value) #1
-    #         PC_Cluster_UUID = row[0].value
+        for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+            #print("PC_Cluster_UUID : ", row[0].value) #1
+            PC_Cluster_UUID = row[0].value
             
-    #         #print("Customer_Name : ", row[2].value)
-    #         Customer_Name = row[2].value
+            #print("Customer_Name : ", row[2].value)
+            Customer_Name = row[2].value
             
-    #         #print("Account_Theater : ", row[5].value) #6
-    #         Account_Theater = row[5].value
+            #print("Account_Theater : ", row[5].value) #6
+            Account_Theater = row[5].value
 
-    #         #print("PC_VERSION : ", row[8].value)    #9
-    #         PC_VERSION = row[8].value
+            #print("PC_VERSION : ", row[8].value)    #9
+            PC_VERSION = row[8].value
 
-    #         #print("CALM_VERSION : ", row[9].value)   #10
-    #         CALM_VERSION = row[9].value
+            #print("CALM_VERSION : ", row[9].value)   #10
+            CALM_VERSION = row[9].value
             
-    #         #print("EPSILON_VERSION : ", row[10].value) #11
-    #         EPSILON_VERSION = row[10].value
+            #print("EPSILON_VERSION : ", row[10].value) #11
+            EPSILON_VERSION = row[10].value
 
-    #         #print("Last_Reported_Date : ", row[11].value) #12
-    #         Last_Reported_Date = row[11].value
-    #         if(Last_Reported_Date is not None):
-    #             date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
-    #         else:
-    #             date = ""
+            #print("Last_Reported_Date : ", row[11].value) #12
+            Last_Reported_Date = row[11].value
+            if(Last_Reported_Date is not None):
+                date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
+            else:
+                date = ""
             
-    #         #print("ACTIVE_BP : ", row[12].value)       #13  
-    #         ACTIVE_BP = row[12].value
+            #print("ACTIVE_BP : ", row[12].value)       #13  
+            ACTIVE_BP = row[12].value
 
-    #         #print("RUNNING_APP : ", row[16].value)	    #16
-    #         RUNNING_APP = row[16].value
+            #print("RUNNING_APP : ", row[16].value)	    #16
+            RUNNING_APP = row[16].value
 
-    #         #print("PROVISIONING_APP : ", row[17].value) #18
-    #         PROVISIONING_APP = row[17].value
+            #print("PROVISIONING_APP : ", row[17].value) #18
+            PROVISIONING_APP = row[17].value
 
-    #         #print("ERROR_APP : ", row[18].value) #19	
-    #         ERROR_APP = row[18].value
+            #print("ERROR_APP : ", row[18].value) #19	
+            ERROR_APP = row[18].value
 
-    #         #print("DELETED_APP : ", row[19].value)	#20
-    #         DELETED_APP = row[19].value
+            #print("DELETED_APP : ", row[19].value)	#20
+            DELETED_APP = row[19].value
 
-    #         #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
-    #         TOTAL_MANAGED_VMS = row[20].value
+            #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
+            TOTAL_MANAGED_VMS = row[20].value
 
-    #         #print("TOTAL_AHV_VMS : ", row[21].value)	#22
-    #         TOTAL_AHV_VMS = row[21].value
+            #print("TOTAL_AHV_VMS : ", row[21].value)	#22
+            TOTAL_AHV_VMS = row[21].value
 
-    #         #print("TOTAL_AWS_VMS : ", row[22].value) #23
-    #         TOTAL_AWS_VMS = row[22].value
+            #print("TOTAL_AWS_VMS : ", row[22].value) #23
+            TOTAL_AWS_VMS = row[22].value
             
-    #         #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
-    #         TOTAL_VMWARE_VMS = row[23].value
+            #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
+            TOTAL_VMWARE_VMS = row[23].value
             
-    #         #print("TOTAL_GCP_VMS : ", row[24].value) #25
-    #         TOTAL_GCP_VMS = row[24].value
+            #print("TOTAL_GCP_VMS : ", row[24].value) #25
+            TOTAL_GCP_VMS = row[24].value
             
-    #         #print("TOTAL_AZURE_VMS : ", row[25].value) #26
-    #         TOTAL_AZURE_VMS = row[25].value
+            #print("TOTAL_AZURE_VMS : ", row[25].value) #26
+            TOTAL_AZURE_VMS = row[25].value
             
-    #         #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
-    #         TOTAL_EXISTING_VMS = row[26].value
+            #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
+            TOTAL_EXISTING_VMS = row[26].value
             
-    #         #print("TOTAL_K8S_POD : ", row[27].value) #28
-    #         TOTAL_K8S_POD = row[27].value
+            #print("TOTAL_K8S_POD : ", row[27].value) #28
+            TOTAL_K8S_POD = row[27].value
             
-    #         #print("ACTIVE_AHV_VMS : ", row[28].value) #29
-    #         ACTIVE_AHV_VMS = row[28].value
+            #print("ACTIVE_AHV_VMS : ", row[28].value) #29
+            ACTIVE_AHV_VMS = row[28].value
             
-    #         #print("ACTIVE_AWS_VMS : ", row[29].value) #30
-    #         ACTIVE_AWS_VMS = row[29].value
+            #print("ACTIVE_AWS_VMS : ", row[29].value) #30
+            ACTIVE_AWS_VMS = row[29].value
             
-    #         #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
-    #         ACTIVE_VMWARE_VMS = row[30].value
+            #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
+            ACTIVE_VMWARE_VMS = row[30].value
             
-    #         #print("ACTIVE_GCP_VMS : ", row[31].value) #32
-    #         ACTIVE_GCP_VMS = row[31].value
+            #print("ACTIVE_GCP_VMS : ", row[31].value) #32
+            ACTIVE_GCP_VMS = row[31].value
             
-    #         #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
-    #         ACTIVE_AZURE_VMS = row[32].value
+            #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
+            ACTIVE_AZURE_VMS = row[32].value
             
-    #         #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
-    #         ACTIVE_EXISTING_VMS = row[33].value
+            #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
+            ACTIVE_EXISTING_VMS = row[33].value
             
-    #         #print("ACTIVE_K8S_POD : ", row[34].value) #35
-    #         ACTIVE_K8S_POD = row[34].value
+            #print("ACTIVE_K8S_POD : ", row[34].value) #35
+            ACTIVE_K8S_POD = row[34].value
             
-    #         #print("AWS_ACCOUNT : ", row[35].value) #36
-    #         AWS_ACCOUNT = row[35].value
+            #print("AWS_ACCOUNT : ", row[35].value) #36
+            AWS_ACCOUNT = row[35].value
             
-    #         #print("VMWARE_ACCOUNT : ", row[36].value) #37
-    #         VMWARE_ACCOUNT = row[36].value
+            #print("VMWARE_ACCOUNT : ", row[36].value) #37
+            VMWARE_ACCOUNT = row[36].value
             
-    #         #print("GCP_ACCOUNT : ", row[37].value) #38
-    #         GCP_ACCOUNT = row[37].value
+            #print("GCP_ACCOUNT : ", row[37].value) #38
+            GCP_ACCOUNT = row[37].value
             
-    #         #print("AZURE_ACCOUNT : ", row[38].value) #39
-    #         AZURE_ACCOUNT = row[38].value
+            #print("AZURE_ACCOUNT : ", row[38].value) #39
+            AZURE_ACCOUNT = row[38].value
 
-    #         #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
-    #         LICENSE_VMS_COUNTS = row[44].value
+            #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
+            LICENSE_VMS_COUNTS = row[44].value
             
-    #         #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
-    #         LICENSE_UNIQUE_VMS_COUNT = row[45].value
+            #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
+            LICENSE_UNIQUE_VMS_COUNT = row[45].value
             
-    #         #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
-    #         LICENSE_REQUIRED_PACKS = row[46].value                 
+            #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
+            LICENSE_REQUIRED_PACKS = row[46].value                 
 
-    #         if(Customer_Name is not None):
+            if(Customer_Name is not None):
 
-    #             if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name)):
-    #                 # print("Handling Ntnx acccounts. So skipping")
-    #                 continue
+                if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name) or ("POC" in Customer_Name)):
+                    # print("Handling Ntnx acccounts. So skipping")
+                    continue
 
-    #             if(CALM_VERSION in version_dict):
-    #                 x = version_dict[CALM_VERSION]
-    #                 version_dict[CALM_VERSION] = x+1  
-    #             else:
-    #                 version_dict[CALM_VERSION] = 1
+                if(CALM_VERSION in version_dict):
+                    x = version_dict[CALM_VERSION]
+                    version_dict[CALM_VERSION] = x+1  
+                else:
+                    version_dict[CALM_VERSION] = 1
                 
-    #             # #current quarter
-    #             # current_time = datetime.datetime.utcnow()
-    #             # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
+                # #current quarter
+                # current_time = datetime.datetime.utcnow()
+                # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
 
-    #             #Adoption
-    #             if(LICENSE_REQUIRED_PACKS is not None):
-    #                 if(LICENSE_REQUIRED_PACKS != 0):
-    #                     ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
+                #Adoption
+                if(LICENSE_UNIQUE_VMS_COUNT is not None):
+                    if(LICENSE_UNIQUE_VMS_COUNT != 0):
+                        # ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
+                        ADOPTION = 0
                         
-    #                 else:
-    #                     ADOPTION = -1    
-    #             else:
-    #                 ADOPTION = -1
+                    else:
+                        ADOPTION = -1    
+                else:
+                    ADOPTION = -1
 
-    #             #Softdelete
-    #             if(TOTAL_AHV_VMS is not None):
-    #                 if(TOTAL_AHV_VMS != 0):
-    #                     PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
+                #Softdelete
+                if(TOTAL_AHV_VMS is not None):
+                    if(TOTAL_AHV_VMS != 0):
+                        PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
                     
-    #                 else:
-    #                     PERCENT_VMs_INUSE = -1   
-    #             else:
-    #                 PERCENT_VMs_INUSE = -1
+                    else:
+                        PERCENT_VMs_INUSE = -1   
+                else:
+                    PERCENT_VMs_INUSE = -1
                 
-    #             #Public Account
-    #             if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
-    #                 PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
+                #Public Account
+                if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
+                    PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
                 
-    #             else:
-    #                 PUBLIC_ACCOUNT = -1
+                else:
+                    PUBLIC_ACCOUNT = -1
 
-    #             #Populate the Data
-    #             data=Data(PC_Cluster_UUID, Customer_Name, Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
-    #             AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
+                #Populate the Data
+                data=Data(PC_Cluster_UUID, Customer_Name.capitalize(), Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
+                AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
                 
-    #             db.session.add(data)
-    #             print("Entered Data for customer : ", Customer_Name)    
+                db.session.add(data)
+                # print("Entered Data for customer : ", Customer_Name)    
         
-    #     db.session.commit()
+        db.session.commit()
 
     excelList = ["Calm_Licenses_Sold-FY'20.xlsx"]
     
@@ -366,46 +367,48 @@ def __intialize():
             if(ACCOUNT_NAME is not None):
 
                 #Populate the Data
-                salesData = SalesData(ACCOUNT_NAME, QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV)
+                salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV)
                 
                 db.session.add(salesData)
-                print("Entered Data for Account : ", ACCOUNT_NAME)    
+                # print("Entered Data for Account : ", ACCOUNT_NAME)    
         
         db.session.commit()
 
-    # return ""
-
-    # excelList = ["Calm_Cases.xlsx"]
+    excelList = ["Calm_Cases.xlsx"]
     
-    # for excel in excelList:
+    for excel in excelList:
 
-    #     wb = openpyxl.load_workbook(excel)
-    #     print(wb.sheetnames)
+        wb = openpyxl.load_workbook(excel)
+        print(wb.sheetnames)
 
-    #     sheet = wb.active
-    #     row_count = sheet.max_row
-    #     column_count = sheet.max_column
-    #     print("Sheet Name is :", sheet)
+        sheet = wb.active
+        row_count = sheet.max_row
+        column_count = sheet.max_column
+        # print("Sheet Name is :", sheet)
         
-    #     # print("Quarter is : ", excel[-11:-5])
-    #     # QUARTER = excel[-11:-5]
+        # print("Quarter is : ", excel[-11:-5])
+        # QUARTER = excel[-11:-5]
 
-    #     for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-    #         ACCOUNT_NAME = row[1].value
+        for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+            ACCOUNT_NAME = row[1].value
             
-    #         CASE_NUM = row[0].value
+            CASE_NUM = row[0].value
             
-    #         CLOSED_DATE = row[5].value
+            CLOSED_DATE = row[5].value
 
-    #         if(ACCOUNT_NAME is not None):
+            if(ACCOUNT_NAME is not None):
 
-    #             #Populate the Data
-    #             supportData = SupportData(ACCOUNT_NAME, CASE_NUM, CLOSED_DATE)
+                if(("Nutanix" in ACCOUNT_NAME) or ("Ntnx" in ACCOUNT_NAME) or ("POC" in ACCOUNT_NAME)):
+                    # print("Handling Ntnx acccounts. So skipping")
+                    continue
+
+                #Populate the Data
+                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, CLOSED_DATE)
                 
-    #             db.session.add(supportData)
-    #             print("Entered Data for Account : ", ACCOUNT_NAME)    
+                db.session.add(supportData)
+                # print("Entered Data for Account : ", ACCOUNT_NAME)    
         
-    #     db.session.commit()
+        db.session.commit()
 
     return ""
 
@@ -413,49 +416,49 @@ def __intialize():
 def getStats():
     stats = {}
     if request.method=='GET':
-        print(" Current Quarter is : %s " % quarter_to_show)
+        # print(" Current Quarter is : %s " % quarter_to_show)
 
-        num_of_active_customers = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active Customers: %s " % num_of_active_customers)
+        num_of_active_customers = db.session.query(Data.Customer_Name).distinct().filter(Data.QUARTER == quarter_to_show).count()
+        # print(" Total Active Customers: %s " % num_of_active_customers)
         
         num_of_active_BPs = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active BPs: %s " % num_of_active_BPs)
+        # print(" Total Active BPs: %s " % num_of_active_BPs)
 
         num_of_running_APPs = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Running APPs: %s " % num_of_running_APPs)
+        # print(" Total Running APPs: %s " % num_of_running_APPs)
         
         num_of_provisioning_APPs = db.session.query(func.sum(Data.PROVISIONING_APP)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Provisioning APPs: %s " % num_of_provisioning_APPs)
+        # print(" Total Provisioning APPs: %s " % num_of_provisioning_APPs)
         
         num_of_managed_VMs= db.session.query(func.sum(Data.TOTAL_MANAGED_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Managed VMs: %s " % num_of_managed_VMs)
+        # print(" Total Managed VMs: %s " % num_of_managed_VMs)
         
         num_of_active_AHV_VMs = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs)
         
         num_of_active_AWS_VMs = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active AWS VMs: %s " % num_of_active_AWS_VMs)
+        # print(" Total Active AWS VMs: %s " % num_of_active_AWS_VMs)
         
         num_of_active_VMWare_VMs = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active VMware VMs: %s " % num_of_active_VMWare_VMs)
+        # print(" Total Active VMware VMs: %s " % num_of_active_VMWare_VMs)
         
         num_of_active_GCP_VMs = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active GCP VMs: %s " % num_of_active_GCP_VMs)
+        # print(" Total Active GCP VMs: %s " % num_of_active_GCP_VMs)
         
         num_of_active_Existing_VMs = db.session.query(func.sum(Data.ACTIVE_EXISTING_VMS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total Active Existing VMs: %s " % num_of_active_Existing_VMs)
+        # print(" Total Active Existing VMs: %s " % num_of_active_Existing_VMs)
         
         num_of_licensed_unique_VMs = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total licenses unique VMs: %s " % num_of_licensed_unique_VMs)
+        # print(" Total licenses unique VMs: %s " % num_of_licensed_unique_VMs)
 
         num_of_licenses_required = db.session.query(func.sum(Data.LICENSE_REQUIRED_PACKS)).filter(Data.QUARTER == quarter_to_show).scalar()
-        print(" Total licenses required: %s " % num_of_licenses_required)
+        # print(" Total licenses required: %s " % num_of_licenses_required)
 
-        average_adoption = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == quarter_to_show).scalar()
+        # average_adoption = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == quarter_to_show).scalar()
 
-        print(average_adoption)
-        print(type(average_adoption))
-        print(round(average_adoption, 2))
+        # print(average_adoption)
+        # print(type(average_adoption))
+        # print(round(average_adoption, 2))
 
         unique_paid_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct().count()
 
@@ -471,7 +474,7 @@ def getStats():
         stats['active_Existing_VMs'] = num_of_active_Existing_VMs
         stats['licensed_unique_VMs'] = num_of_licensed_unique_VMs 
         stats['licenses_required'] = num_of_licenses_required
-        stats['avg_adoption'] = round(average_adoption, 2)
+        # stats['avg_adoption'] = round(average_adoption, 2)
         stats['paid_customers'] = unique_paid_customers
 
     return stats
@@ -480,30 +483,78 @@ def getStats():
 def getAdoption():
     #Prepare adoption Data
     adoption_records = []
-    records = db.session.query(Data).filter(Data.ADOPTION != -1).order_by(Data.ADOPTION.desc()).all()
+    
+    #Paid Customers & Licenses count    
+    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME, func.sum(SalesData.QTY_SOLD).label("QTY_SOLD")).group_by(SalesData.CUSTOMER_NAME).all()
+    print(len(licenses_purchased))
+    
+    paid_customers = {}
+    for record in licenses_purchased:
+        if(record.CUSTOMER_NAME not in paid_customers):
+            paid_customers[record.CUSTOMER_NAME] = record.QTY_SOLD
+    
+    print(len(paid_customers))
+    
+    #Get records for adoption computation
+    records = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT).label("VMs"), Data.Customer_Name).filter(Data.LICENSE_UNIQUE_VMS_COUNT > 0).filter(Data.QUARTER == quarter_to_show).group_by(Data.Customer_Name).all()
+    print(len(records))
+    
     adoption_dict = {}
-
     for record in records:
         customer = record.Customer_Name
+        if(paid_customers.get(customer) is not None):
+            adoption_dict[customer] = round((record.VMs/((paid_customers.get(customer)+1)*25))*100,2)
+            print("Customer : " , customer + "VMs is : ", str(record.VMs) + "Licenses is : ", str(paid_customers.get(customer)) + " adoption is : ", adoption_dict[customer])
+            db.session.query(Data).filter(Data.Customer_Name == customer).filter(Data.QUARTER == quarter_to_show).update({Data.ADOPTION : adoption_dict[customer]})
+            db.session.commit()
 
-        if(record.ADOPTION != -1):
-            adoption_dict[customer] = record.ADOPTION
-
-    print(adoption_dict)
-    sorted(adoption_dict.items(), key=lambda x: x[1], reverse=True)    
-    print(adoption_dict)
+    print(len(adoption_dict))
+    # sorted(adoption_dict.items(), key=lambda x: x[1], reverse=True)    
+    # # print(adoption_dict)
 
     for key in adoption_dict:
         adoption_record = {}
         adoption_record["Name"] = key
         adoption_record["Value"] = adoption_dict[key]
-
+        adoption_record["QTY"] = paid_customers.get(key)
+        
         adoption_records.append(adoption_record)
 
-    print(adoption_records)    
-
-    return jsonify({'adoption records': adoption_records})
+    # print(adoption_records)    
     
+    return jsonify({'adoption records': adoption_records})
+
+@app.route("/getAverageAdoption", methods=['GET'])
+def getAverageAdoption():
+    average_adoption = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == quarter_to_show).scalar()
+    
+    stats = {}
+    stats['avg_adoption'] = round(average_adoption, 2)
+
+    return stats
+    
+@app.route("/getPaidCustomersList", methods=['GET'])
+def getPaidCustomersList():
+
+    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).distinct().all()
+    paid_customers = []
+    for record in licenses_purchased:
+        # print("Cust name ", record.CUSTOMER_NAME)
+        if(record.CUSTOMER_NAME not in paid_customers):
+            paid_customers.append(record.CUSTOMER_NAME)
+
+    records = db.session.query(Data.Customer_Name).distinct().filter(Data.QUARTER == quarter_to_show).order_by(Data.Customer_Name.desc()).all()
+    
+    cust_list = []
+    for record in records:
+        customer = record.Customer_Name
+        if(customer in paid_customers):
+            cust_list.append(customer.capitalize())
+        
+    # print(cust_list)
+
+    return jsonify({'Customer list': cust_list})
+
 @app.route("/getCalmVersionDistro", methods=['GET'])
 def getCalmVersionDistro():
     #Prepare Calm Version records
@@ -521,7 +572,7 @@ def getCalmVersionDistro():
         elif(version is not None):
             version_dict[version] = 1
 
-    print(version_dict)
+    # print(version_dict)
 
     for key in version_dict:
         version_record = {}
@@ -530,7 +581,7 @@ def getCalmVersionDistro():
         
         version_records.append(version_record)
 
-    print(version_records)
+    # print(version_records)
 
     return jsonify({'version records': version_records})
 
@@ -540,61 +591,61 @@ def getStatsByQtr():
     if request.method=='GET':
 
         num_of_active_bps_q1 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_bps_q1)
+        # # print(" Total Active BPs in Q1: %s " % num_of_active_bps_q1)
 
         num_of_active_bps_q2 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_bps_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_bps_q2)
 
         num_of_active_bps_q3 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_bps_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_bps_q3)
 
         num_of_active_bps_q4 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_bps_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_bps_q4)
 
         num_of_active_bps_q5 = db.session.query(func.sum(Data.ACTIVE_BP)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q5: %s " % num_of_active_bps_q4)
+        # print(" Total Active BPs in Q5: %s " % num_of_active_bps_q4)
 
         num_of_running_APPs_q1 = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Running APPs in Q1: %s " % num_of_running_APPs_q1)
+        # print(" Total Running APPs in Q1: %s " % num_of_running_APPs_q1)
 
         num_of_running_APPs_q2 = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Running APPs in Q2: %s " % num_of_running_APPs_q2)
+        # print(" Total Running APPs in Q2: %s " % num_of_running_APPs_q2)
 
         num_of_running_APPs_q3 = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Running APPs in Q3: %s " % num_of_running_APPs_q2)
+        # print(" Total Running APPs in Q3: %s " % num_of_running_APPs_q2)
 
         num_of_running_APPs_q4 = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Running APPs in Q4: %s " % num_of_running_APPs_q2)
+        # print(" Total Running APPs in Q4: %s " % num_of_running_APPs_q2)
 
         num_of_running_APPs_q5 = db.session.query(func.sum(Data.RUNNING_APP)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Running APPs in Q5: %s " % num_of_running_APPs_q5)
+        # print(" Total Running APPs in Q5: %s " % num_of_running_APPs_q5)
 
         num_of_active_AHV_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q1)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q1)
 
         num_of_active_AHV_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q2)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q2)
 
         num_of_active_AHV_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q3)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q3)
 
         num_of_active_AHV_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q4)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q4)
 
         num_of_active_AHV_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q5)
+        # print(" Total Active AHV VMs: %s " % num_of_active_AHV_VMs_q5)
 
-        average_adoption_q1 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == "Q12020").scalar()
-        average_adoption_q2 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == "Q22020").scalar()
-        average_adoption_q3 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == "Q32020").scalar()
-        average_adoption_q4 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == "Q42020").scalar()
-        average_adoption_q5 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION != -1).filter(Data.QUARTER == "Q12021").scalar()
+        average_adoption_q1 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == "Q12020").scalar()
+        average_adoption_q2 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == "Q22020").scalar()
+        average_adoption_q3 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == "Q32020").scalar()
+        average_adoption_q4 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == "Q42020").scalar()
+        average_adoption_q5 = db.session.query(func.avg(Data.ADOPTION)).filter(Data.ADOPTION > 0).filter(Data.QUARTER == "Q12021").scalar()
 
-        print(" Avg adoption Q1 : %s ", average_adoption_q1)
-        print(" Avg adoption Q2 : %s ", average_adoption_q2)
-        print(" Avg adoption Q3 : %s ", average_adoption_q3)
-        print(" Avg adoption Q4 : %s ", average_adoption_q4)
-        print(" Avg adoption Q5 : %s ", average_adoption_q5)
+        # print(" Avg adoption Q1 : %s ", average_adoption_q1)
+        # print(" Avg adoption Q2 : %s ", average_adoption_q2)
+        # print(" Avg adoption Q3 : %s ", average_adoption_q3)
+        # print(" Avg adoption Q4 : %s ", average_adoption_q4)
+        # print(" Avg adoption Q5 : %s ", average_adoption_q5)
 
         Q1Data = {}
         Q1Data["BPs"] = num_of_active_bps_q1
@@ -632,7 +683,7 @@ def getStatsByQtr():
         statsByQtr.append(Q4Data)
         statsByQtr.append(Q5Data)
 
-        print(statsByQtr)
+        # print(statsByQtr)
     
     return jsonify({'statsByQtr': statsByQtr})
 
@@ -641,79 +692,79 @@ def getProviderStatsByQtr():
     providerStatsByQtr = []
     if request.method=='GET':
         num_of_active_AHV_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_AHV_VMs_q1)
+        # print(" Total Active BPs in Q1: %s " % num_of_active_AHV_VMs_q1)
 
         num_of_active_VMWare_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_VMWare_VMs_q1)
+        # print(" Total Active BPs in Q1: %s " % num_of_active_VMWare_VMs_q1)
 
         num_of_active_AWS_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_AWS_VMs_q1)
+        # print(" Total Active BPs in Q1: %s " % num_of_active_AWS_VMs_q1)
 
         num_of_active_AZURE_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_AZURE_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_AZURE_VMs_q1)
+        # print(" Total Active BPs in Q1: %s " % num_of_active_AZURE_VMs_q1)
 
         num_of_active_GCP_VMs_q1 = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == "Q12020").scalar()
-        print(" Total Active BPs in Q1: %s " % num_of_active_GCP_VMs_q1)
+        # print(" Total Active BPs in Q1: %s " % num_of_active_GCP_VMs_q1)
 
         num_of_active_AHV_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_AHV_VMs_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_AHV_VMs_q2)
 
         num_of_active_VMWare_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_VMWare_VMs_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_VMWare_VMs_q2)
 
         num_of_active_AWS_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_AWS_VMs_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_AWS_VMs_q2)
 
         num_of_active_AZURE_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_AZURE_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_AZURE_VMs_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_AZURE_VMs_q2)
 
         num_of_active_GCP_VMs_q2 = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == "Q22020").scalar()
-        print(" Total Active BPs in Q2: %s " % num_of_active_GCP_VMs_q2)
+        # print(" Total Active BPs in Q2: %s " % num_of_active_GCP_VMs_q2)
 
         num_of_active_AHV_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_AHV_VMs_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_AHV_VMs_q3)
 
         num_of_active_VMWare_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_VMWare_VMs_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_VMWare_VMs_q3)
 
         num_of_active_AWS_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_AWS_VMs_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_AWS_VMs_q3)
 
         num_of_active_AZURE_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_AZURE_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_AZURE_VMs_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_AZURE_VMs_q3)
 
         num_of_active_GCP_VMs_q3 = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == "Q32020").scalar()
-        print(" Total Active BPs in Q3: %s " % num_of_active_GCP_VMs_q3)
+        # print(" Total Active BPs in Q3: %s " % num_of_active_GCP_VMs_q3)
 
         num_of_active_AHV_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AHV_VMs_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AHV_VMs_q4)
 
         num_of_active_VMWare_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_VMWare_VMs_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_VMWare_VMs_q4)
 
         num_of_active_AWS_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AWS_VMs_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AWS_VMs_q4)
 
         num_of_active_AZURE_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_AZURE_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AZURE_VMs_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AZURE_VMs_q4)
 
         num_of_active_GCP_VMs_q4 = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == "Q42020").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_GCP_VMs_q4)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_GCP_VMs_q4)
 
         num_of_active_AHV_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_AHV_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AHV_VMs_q5)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AHV_VMs_q5)
 
         num_of_active_VMWare_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_VMWARE_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_VMWare_VMs_q5)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_VMWare_VMs_q5)
 
         num_of_active_AWS_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_AWS_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AWS_VMs_q5)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AWS_VMs_q5)
 
         num_of_active_AZURE_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_AZURE_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_AZURE_VMs_q5)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_AZURE_VMs_q5)
 
         num_of_active_GCP_VMs_q5 = db.session.query(func.sum(Data.ACTIVE_GCP_VMS)).filter(Data.QUARTER == "Q12021").scalar()
-        print(" Total Active BPs in Q4: %s " % num_of_active_GCP_VMs_q5)
+        # print(" Total Active BPs in Q4: %s " % num_of_active_GCP_VMs_q5)
 
         Q1Data = {}
         Q1Data["AHV"] = num_of_active_AHV_VMs_q1
@@ -761,7 +812,7 @@ def getProviderStatsByQtr():
         providerStatsByQtr.append(Q4Data)
         providerStatsByQtr.append(Q5Data)
 
-        print(providerStatsByQtr)
+        # print(providerStatsByQtr)
     
     return jsonify({'finalrecord': providerStatsByQtr})
 
@@ -770,7 +821,7 @@ def getSoftDeleteCustomers():
     soft_Delete_Customers = []
     if request.method=='GET':
         records = db.session.query(Data.Customer_Name, Data.PC_Cluster_UUID, Data.ACTIVE_AHV_VMS, Data.TOTAL_AHV_VMS, Data.RUNNING_APP, Data.PERCENT_VMs_INUSE).filter(Data.QUARTER == quarter_to_show).filter(Data.PERCENT_VMs_INUSE < 20).filter(Data.PERCENT_VMs_INUSE > -1).all()
-        print(" Soft Delete Customers are : %s " % records)
+        # print(" Soft Delete Customers are : %s " % records)
 
         for record in records:
             soft_delete_record = {}
@@ -783,7 +834,7 @@ def getSoftDeleteCustomers():
             
             soft_Delete_Customers.append(soft_delete_record)
 
-        print(soft_Delete_Customers)
+        # print(soft_Delete_Customers)
 
     return jsonify({'Soft Delete Customers': soft_Delete_Customers})
 
@@ -792,7 +843,7 @@ def getPublicAccounts():
     public_accounts_records = []
     if request.method=='GET':
         records = db.session.query(Data.Customer_Name, Data.AWS_ACCOUNT, Data.AZURE_ACCOUNT, Data.GCP_ACCOUNT, Data.PUBLIC_ACCOUNT).filter(Data.QUARTER == quarter_to_show).filter(Data.PUBLIC_ACCOUNT > -1).all()
-        print(" Public Account Customers are : %s " % records)
+        # print(" Public Account Customers are : %s " % records)
 
         for record in records:
             public_accounts_record = {}
@@ -804,9 +855,71 @@ def getPublicAccounts():
 
             public_accounts_records.append(public_accounts_record)
 
-        print(public_accounts_records)
+        # print(public_accounts_records)
     
     return jsonify({'Public Account Records': public_accounts_records})
+
+@app.route("/getCustomerDetails/<name>", methods=['GET']) 
+def getCustomerDetails(name):
+    custDetails = []
+    if request.method=='GET':
+        print("Customer name is : %s ", name);     
+        records = db.session.query(Data.QUARTER, func.sum(Data.ACTIVE_BP).label("BPs"),func.sum(Data.RUNNING_APP).label("APPs"),func.sum(Data.LICENSE_UNIQUE_VMS_COUNT).label("VMs"),func.sum(Data.LICENSE_REQUIRED_PACKS).label("ReqLicense")).filter(Data.Customer_Name == name).group_by(Data.QUARTER).all()
+        print(" Details for Customer : %s " % records)
+
+        index = {'Q12020':0,'Q22020':1,'Q32020':2,'Q42020':3,'Q12021':4} 
+        sortedRecords = [None] * len(index)
+        print("Index size", len(index))
+        print("SortedRecord size", len(sortedRecords))
+        
+        # sort records by quarter
+        curIndex = 0
+        for record in records:
+            print("Record Quarter", record.QUARTER)
+            sortedRecords[index.get(record.QUARTER)] = record; 
+        
+        for record in sortedRecords:
+            custDetailRecord = {}
+            if(record is not None):
+                custDetailRecord["name"] = record.QUARTER
+                custDetailRecord["BPs"] = record.BPs
+                custDetailRecord["APPs"] = record.APPs
+                custDetailRecord["VMs"] = record.VMs
+        
+            custDetails.append(custDetailRecord)
+
+        print(custDetails)
+
+    return jsonify({'Customer Details': custDetails})
+
+@app.route("/getCustomerExtraDetails/<name>", methods=['GET']) 
+def getCustomerExtraDetails(name):
+    if request.method=='GET':
+        # print("Customer name is : %s ", name);     
+        records = db.session.query(Data.CALM_VERSION, Data.Last_Reported_Date, Data.ADOPTION).filter(Data.Customer_Name == name).filter(Data.QUARTER == quarter_to_show).all()
+        
+        for record in records:
+            print ("Version", record.CALM_VERSION)
+            version = record.CALM_VERSION
+            print ("Date ", record.Last_Reported_Date)
+            lastDate = record.Last_Reported_Date
+            adoption = record.ADOPTION
+        # print(" Details for Customer : %s " % records[0])
+
+        licenses_purchased = db.session.query(func.sum(SalesData.QTY_SOLD)).filter(SalesData.CUSTOMER_NAME == name).scalar()
+        # print(" Details for Customer : %s " % licenses_purchased)
+
+        support_data = db.session.query(func.count(SupportData.CASE_NUM)).filter(SupportData.CUSTOMER_NAME == name).scalar()
+        # print(" Details for Customer Support : %s " % support_data)
+
+        custExtraDetails = {}
+        custExtraDetails['Version'] = version
+        custExtraDetails['ReportedDate'] = lastDate.strftime("%m/%d/%Y")
+        custExtraDetails['Licenses'] = licenses_purchased
+        custExtraDetails['SupportCases'] = support_data
+        custExtraDetails['Adoption'] = adoption
+        
+    return custExtraDetails
 
 @app.route("/getReportedDataSinceDays/<num>", methods=['GET'])
 def getReportedDataSinceDays(num):
@@ -815,8 +928,8 @@ def getReportedDataSinceDays(num):
     within_Range = db.session.query(Data).filter(Data.QUARTER == quarter_to_show).filter(Data.Last_Reported_Date > num_weeks_ago).count()
     customer_Count = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == quarter_to_show).scalar()
     
-    print(" Total Active Customers: %s " % customer_Count)
-    print(" Within Range Data: %s " % within_Range)
+    # print(" Total Active Customers: %s " % customer_Count)
+    # print(" Within Range Data: %s " % within_Range)
 
     sinceDays = {}
     sinceDays['Within Range'] = within_Range
@@ -837,20 +950,20 @@ def getLicenseData():
 
         license_records.append(license_record)
 
-    print(license_records)
+    # print(license_records)
     
     return jsonify({'License Records': license_records})
 
 @app.route("/getSupportData", methods=['GET'])
 def getSupportData():
-    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).all()
+    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).distinct().all()
     paid_customers = []
     for record in licenses_purchased:
-        print("Cust name ", record.CUSTOMER_NAME)
+        # print("Cust name ", record.CUSTOMER_NAME)
         if(record.CUSTOMER_NAME not in paid_customers):
             paid_customers.append(record.CUSTOMER_NAME)
     
-    print("Paid CUstomers: ", paid_customers)
+    # print("Paid CUstomers: ", paid_customers)
 
     support_data = db.session.query(SupportData).all()
 
