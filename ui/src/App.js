@@ -54,6 +54,12 @@ function App() {
   
   const [qtrRows, setQtrRows] = useState([]);
   const [custData, setCustData] = useState([]);
+  const [custCalmVersion, setCustCalmVersion] = useState(0);
+  const [custLicensesPurchased, setCustLicensesPurchased] = useState(0);
+  const [custSupportCases, setCustSupportCases] = useState(0);
+  const [custLastReportedDate, setCustLastReportedDate] = useState(0);
+  const [custAdoption, setCustAdoption] = useState(0);
+
   const [providerQtrRows, setProviderQtrRows] = useState([]);
   const [calmVersionRows, setCalmVersionRows] = useState([]);
   const [softDeleteRows, setSoftDeleteRows] = useState([]);
@@ -133,6 +139,18 @@ function App() {
       rows = Object.values(data.data["Customer Details"])
       setCustData(rows)
     });
+
+    // await axios.get('http://localhost:5000/getCustomerExtraDetails/'+custName).then(data => {
+    const {data} = await axios.get('http://localhost:5000/getCustomerExtraDetails/'+custName)
+    console.log(data)
+    
+    setCustCalmVersion(data["Version"])
+    setCustLicensesPurchased(data["Licenses"])
+    setCustSupportCases(data["SupportCases"])
+    setCustLastReportedDate(data["ReportedDate"])
+    setCustAdoption(data["Adoption"])
+    
+
   };
 
 
@@ -152,7 +170,7 @@ function App() {
       setPaidCustomers(data.paid_customers);
       setLicensedUniqueVMs(data.licensed_unique_VMs);
       setLicensesRequired(data.licenses_required);
-      setAvgAdoption(data.avg_adoption);
+      // setAvgAdoption(data.avg_adoption);
     });
 
     fetch('/getStatsByQtr').then(res => res.json()).then(data => {
@@ -219,7 +237,7 @@ function App() {
       setWithinRange(data["Within Range"])
     })
 
-    fetch('/getCustomerDetails/Celero').then(res => res.json()).then(data => {
+    fetch('/getCustomerDetails/William hill us').then(res => res.json()).then(data => {
       var rows = []
       var tRows = []
       console.log(data)
@@ -227,6 +245,16 @@ function App() {
       rows = Object.values(data)
       rows[0].map(item => tRows.push(item))
       setCustData(tRows)
+    })
+
+    fetch('/getCustomerExtraDetails/William hill us').then(res => res.json()).then(data => {
+      console.log(data)
+      setCustCalmVersion(data["Version"])
+      setCustLicensesPurchased(data["Licenses"])
+      setCustSupportCases(data["SupportCases"])
+      setCustLastReportedDate(data["ReportedDate"])
+      setCustAdoption(data["Adoption"])
+      
     })
 
     fetch('/getLicenseData').then(res => res.json()).then(data => {
@@ -258,12 +286,17 @@ function App() {
       rows[0].map(item => tRows.push(item))
       setPaidCustomersList(tRows)
     })
+
+    fetch('/getAverageAdoption').then(res => res.json()).then(data => {
+      setAvgAdoption(data.avg_adoption);
+    })
   }, []);
 
   //Adoption Table
   const [AdoptionRate, setAdoptionRate] = React.useState({
     columns: [
       { title: 'Customer', field: 'Name' },
+      { title: 'QTY Purchased', field: 'QTY', type: 'numeric' },
       { title: '% Adoption', field: 'Value', type: 'numeric' },
     ],
   });
@@ -531,7 +564,8 @@ function App() {
               <TableRow>
                 <TableCell>
                   <MaterialTable
-                  icons={tableIcons}                                                                                     a           title="License Purchased"
+                  icons={tableIcons}
+                  title="License Purchased"
                   columns={License.columns}
                   data={licenseRows}
                   />  
@@ -629,9 +663,34 @@ function App() {
                   />  
                 </TableCell>
               </TableRow>
-              <Dropdown options={paid_customers_list} onChange={handleCustomerChart} value={defaultOption} placeholder="Select an option" />
               <TableRow>
                 <TableCell>
+                  <Paper>
+                    <h3>Select Paid Customer for Details</h3>
+                      <Dropdown options={paid_customers_list} onChange={handleCustomerChart} value={defaultOption} placeholder="Select an option" />
+                      <br></br>
+                      <LineChart
+                    width={500}
+                    height={300}
+                    data={custData}
+                    margin={{
+                    top: 5, right: 30, left: 20, bottom: 5,
+                    }}
+                    >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="APPs" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    <Line type="monotone" dataKey="BPs" stroke="#82ca9d" />
+                    <Line type="monotone" dataKey="VMs" stroke="#d8bb84" />
+                  </LineChart>
+                    </Paper>
+                </TableCell>
+              {/* </TableRow> */}
+              {/* <TableRow> */}
+                {/* <TableCell>
                   <Paper>
                     <h3>QoQ VMs, BPs, Apps growth</h3>
                     <BarChart
@@ -652,8 +711,9 @@ function App() {
                   <Bar dataKey="VMs" stackId="a" fill="#d8bb84" />
                   </BarChart>
                   </Paper>
-                </TableCell>
-                <TableCell>
+                </TableCell> */}
+                
+                {/* <TableCell>
                   <Paper>
                     <LineChart
                     width={500}
@@ -672,6 +732,18 @@ function App() {
                     <Line type="monotone" dataKey="BPs" stroke="#82ca9d" />
                     <Line type="monotone" dataKey="VMs" stroke="#d8bb84" />
                   </LineChart>
+                </Paper>
+              </TableCell> */}
+              <TableCell>
+                <Paper>
+                <form>
+                  <br></br><p> Last reported date <strong>{custLastReportedDate}</strong> weeks </p>
+                  <p> Support cases Raised till date <strong>{custSupportCases}</strong> </p>
+                  <p> Calm version in use <strong>{custCalmVersion}</strong> </p>
+                  <p> Calm adoption is <strong>{custAdoption} %</strong> </p>
+                  <p> Calm licenses purchased <strong>{custLicensesPurchased}</strong> </p>
+                  <br></br>
+                </form>
                 </Paper>
               </TableCell>
             </TableRow> 
