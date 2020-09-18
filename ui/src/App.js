@@ -296,15 +296,15 @@ function App() {
   const [AdoptionRate, setAdoptionRate] = React.useState({
     columns: [
       { title: 'Customer', field: 'Name' },
-      { title: 'QTY Purchased', field: 'QTY', type: 'numeric' },
-      { title: '% Adoption', field: 'Value', type: 'numeric' },
+      { title: 'Licenses', field: 'QTY', type: 'numeric' },
+      { title: 'Adoption (%)', field: 'Value', type: 'numeric' },
     ],
   });
   
   //Calm Version Distribution  Table
   const [CalmVersionDistro, setCalmVersionDistro] = React.useState({
     columns: [
-      { title: 'Version Number', field: 'Version_Name' },
+      { title: 'Version', field: 'Version_Name' },
       { title: 'Count', field: 'Value', type: 'numeric' },
     ],
   });
@@ -314,10 +314,10 @@ function App() {
     columns: [
       { title: 'Customer', field: 'Customer' },
       // { title: 'Cluster_ID', field: 'Cluster_ID'},
-      { title: 'Active AHV VMs', field: 'Active_AHV_VMs', type: 'numeric' },
-      { title: 'Total AHV VMs', field: 'Total_AHV_VMs', type: 'numeric' },
+      { title: 'Active VMs', field: 'Active_AHV_VMs', type: 'numeric' },
+      { title: 'Total VMs', field: 'Total_AHV_VMs', type: 'numeric' },
       { title: 'Running APPs', field: 'Running_App', type: 'numeric' },
-      { title: 'In Use (%)', field: 'Percent_InUse', type: 'numeric' }
+      { title: 'In use (%)', field: 'Percent_InUse', type: 'numeric' }
     ],
   });
 
@@ -336,7 +336,7 @@ function App() {
     columns: [
       { title: 'Customer', field: 'CUSTOMER' },
       { title: 'Quarter', field: 'QTR_SOLD'},
-      { title: 'CALM TCV', field: 'CALM_TCV'},
+      { title: 'Calm TCV ($)', field: 'CALM_TCV'},
       { title: 'Quantity', field: 'QTY_SOLD', type: 'numeric' }
     ],
   });
@@ -600,72 +600,6 @@ function App() {
               <TableRow>
                 <TableCell>
                   <Paper>
-                    <h3>QoQ VMs, BPs, Apps growth</h3>
-                    <BarChart
-                  width={500}
-                  height={300}
-                  data={qtrRows}
-                  margin={{
-                  top: 20, right: 30, left: 20, bottom: 5,
-                  }}
-                  > 
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="ActiveVMs" stackId="a" fill="#8884d8" />
-                  <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
-                  <Bar dataKey="APPs" stackId="a" fill="#d8bb84" />
-                  </BarChart>
-                  </Paper>
-                </TableCell>
-                <TableCell>
-                  <Paper>
-                  <h3>QoQ Providers growth</h3>
-                  <BarChart
-                  width={500}
-                  height={300}
-                  data={providerQtrRows}
-                  margin={{
-                  top: 20, right: 30, left: 20, bottom: 5,
-                  }}
-                  > 
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="AHV" stackId="a" fill="#8884d8" />
-                  <Bar dataKey="VMWare" stackId="a" fill="#82ca9d" />
-                  <Bar dataKey="AWS" stackId="a" fill="#d8bb84" />
-                  <Bar dataKey="AZURE" stackId="a" fill="#d5d884" />
-                  <Bar dataKey="GCP" stackId="a" fill="#d88584" />
-                  </BarChart>
-                  </Paper>
-                </TableCell>
-              </TableRow> 
-              <TableRow>
-                <TableCell>
-                  <MaterialTable
-                    icons={tableIcons}
-                    title="Soft Delete Customers"
-                    columns={SoftDelete.columns}
-                    data={softDeleteRows}
-                  />
-                </TableCell>
-                <TableCell>
-                  <MaterialTable
-                  icons={tableIcons}
-                  title="Customers using Public Cloud"
-                  columns={PublicAccount.columns}
-                  data={publicAccountRows}
-                  />  
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <Paper>
                     <h3>Select Paid Customer for Details</h3>
                       <Dropdown options={paid_customers_list} onChange={handleCustomerChart} value={defaultOption} placeholder="Select an option" />
                       <br></br>
@@ -736,17 +670,83 @@ function App() {
               </TableCell> */}
               <TableCell>
                 <Paper>
-                <form>
+                  <label><strong>Additional Details</strong></label>
                   <br></br><p> Last reported date <strong>{custLastReportedDate}</strong> weeks </p>
                   <p> Support cases Raised till date <strong>{custSupportCases}</strong> </p>
                   <p> Calm version in use <strong>{custCalmVersion}</strong> </p>
                   <p> Calm adoption is <strong>{custAdoption} %</strong> </p>
                   <p> Calm licenses purchased <strong>{custLicensesPurchased}</strong> </p>
                   <br></br>
-                </form>
                 </Paper>
               </TableCell>
             </TableRow> 
+              <TableRow>
+                <TableCell>
+                  <Paper>
+                    <label><b>Cumulative QoQ VMs, BPs, Apps growth</b></label>
+                    <BarChart
+                  width={500}
+                  height={300}
+                  data={qtrRows}
+                  margin={{
+                  top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                  > 
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="ActiveVMs" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="APPs" stackId="a" fill="#d8bb84" />
+                  </BarChart>
+                  </Paper>
+                </TableCell>
+                <TableCell>
+                  <Paper>
+                  <label><b>Cumulative QoQ Providers growth</b></label>
+                  <BarChart
+                  width={500}
+                  height={300}
+                  data={providerQtrRows}
+                  margin={{
+                  top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                  > 
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="AHV" stackId="a" fill="#8884d8" />
+                  <Bar dataKey="VMWare" stackId="a" fill="#82ca9d" />
+                  <Bar dataKey="AWS" stackId="a" fill="#d8bb84" />
+                  <Bar dataKey="AZURE" stackId="a" fill="#d5d884" />
+                  <Bar dataKey="GCP" stackId="a" fill="#d88584" />
+                  </BarChart>
+                  </Paper>
+                </TableCell>
+              </TableRow> 
+              <TableRow>
+                <TableCell>
+                  <MaterialTable
+                    icons={tableIcons}
+                    title="Soft Delete Customers"
+                    columns={SoftDelete.columns}
+                    data={softDeleteRows}
+                  />
+                </TableCell>
+                <TableCell>
+                  <MaterialTable
+                  icons={tableIcons}
+                  title="Customers using Public Cloud"
+                  columns={PublicAccount.columns}
+                  data={publicAccountRows}
+                  />  
+                </TableCell>
+              </TableRow>
+              
           </TableBody>     
         </Table>
       </header>
