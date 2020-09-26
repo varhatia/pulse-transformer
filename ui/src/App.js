@@ -346,7 +346,7 @@ function App() {
     columns: [
       { title: 'Customer', field: 'Customer_Name' },
       { title: 'Paid', field: 'Paid'},
-      { title: 'Latest Reported', field: 'Date', type: 'datetime-local'},
+      { title: 'Latest', field: 'Date', type: 'datetime-local'},
       { title: 'Cases', field: 'Value', type: 'numeric'},
       
     ],
