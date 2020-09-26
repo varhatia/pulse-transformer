@@ -394,7 +394,7 @@ def __intialize():
             
             CASE_NUM = row[0].value
             
-            CLOSED_DATE = row[5].value
+            OPEN_DATE = row[6].value
 
             if(ACCOUNT_NAME is not None):
 
@@ -403,7 +403,7 @@ def __intialize():
                     continue
 
                 #Populate the Data
-                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, CLOSED_DATE)
+                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, OPEN_DATE)
                 
                 db.session.add(supportData)
                 # print("Entered Data for Account : ", ACCOUNT_NAME)    
@@ -504,7 +504,7 @@ def getAdoption():
         customer = record.Customer_Name
         if(paid_customers.get(customer) is not None):
             adoption_dict[customer] = round((record.VMs/((paid_customers.get(customer)+1)*25))*100,2)
-            print("Customer : " , customer + "VMs is : ", str(record.VMs) + "Licenses is : ", str(paid_customers.get(customer)) + " adoption is : ", adoption_dict[customer])
+            # print("Customer : " , customer + "VMs is : ", str(record.VMs) + "Licenses is : ", str(paid_customers.get(customer)) + " adoption is : ", adoption_dict[customer])
             db.session.query(Data).filter(Data.Customer_Name == customer).filter(Data.QUARTER == quarter_to_show).update({Data.ADOPTION : adoption_dict[customer]})
             db.session.commit()
 
@@ -969,22 +969,34 @@ def getSupportData():
 
     support_records = []
     support_dict = {}
+    support_date_dict = {}
     for record in support_data:
         
         customer = record.CUSTOMER_NAME
-    
+        cDate = record.DATE
+
         if(customer in support_dict):
             x = support_dict[customer]
-            support_dict[customer] = x+1  
+            support_dict[customer] = x+1
         else:
             support_dict[customer] = 1
-
+        
+        if(customer in support_date_dict):
+            # print(datetime.datetime.strptime(cDate, "%m/%d/%Y"))
+            # print(datetime.datetime.strptime(support_date_dict[customer], "%m/%d/%Y"))
+            # if((datetime.datetime.strptime(cDate), "%m/%d/%Y") > datetime.date(support_date_dict[customer])):
+            if(cDate > support_date_dict[customer]):
+                support_date_dict[customer] = cDate
+        else:
+            support_date_dict[customer] = cDate
+        
     print(support_dict)
     # return support_dict
     for key in support_dict:
         support_record = {}
         support_record["Customer_Name"] = key
         support_record["Value"] = support_dict[key]
+        support_record["Date"] = support_date_dict[key].strftime("%Y/%m/%d")
         if(key in paid_customers):
             support_record["Paid"] = "Yes"
         else:
