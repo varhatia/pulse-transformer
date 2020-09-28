@@ -611,7 +611,7 @@ function App() {
                 <TableCell>
                   <MaterialTable
                     icons={tableIcons}
-                    title="Customers Adoption Rate"
+                    title="Customers Adoption Rate (Active in last 6 months)"
                     columns={AdoptionRate.columns}
                     data={adoptionRateRows}
                   />

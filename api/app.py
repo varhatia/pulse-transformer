@@ -519,18 +519,25 @@ def getAdoption():
     
     #Paid Customers & Licenses count    
     licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME, func.sum(SalesData.QTY_SOLD).label("QTY_SOLD")).group_by(SalesData.CUSTOMER_NAME).all()
-    print(len(licenses_purchased))
+    # print(len(licenses_purchased))
     
     paid_customers = {}
     for record in licenses_purchased:
         if(record.CUSTOMER_NAME not in paid_customers):
             paid_customers[record.CUSTOMER_NAME] = record.QTY_SOLD
     
-    print(len(paid_customers))
+    # print(len(paid_customers))
     
     #Get records for adoption computation
-    records = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT).label("VMs"), Data.Customer_Name).filter(Data.LICENSE_UNIQUE_VMS_COUNT > 0).filter(Data.QUARTER == quarter_to_show).group_by(Data.Customer_Name).all()
-    print(len(records))
+
+    # Print date
+    base_date = datetime.datetime.strptime("2020-05-01", '%Y-%m-%d')
+    # print("Base date", base_date)
+    # within_Range = db.session.query(Data.Customer_Name, Data.Last_Reported_Date).filter(Data.QUARTER == quarter_to_show).filter(Data.Last_Reported_Date > base_date)
+    
+    records = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT).label("VMs"), Data.Customer_Name).filter(Data.LICENSE_UNIQUE_VMS_COUNT > 0).filter(Data.QUARTER == quarter_to_show).filter(Data.Last_Reported_Date > base_date).group_by(Data.Customer_Name).all()
+    # records = db.session.query(func.sum(Data.LICENSE_UNIQUE_VMS_COUNT).label("VMs"), Data.Customer_Name).filter(Data.LICENSE_UNIQUE_VMS_COUNT > 0).filter(Data.QUARTER == quarter_to_show).group_by(Data.Customer_Name).all()
+    # print(len(records))
     
     adoption_dict = {}
     for record in records:
@@ -541,7 +548,7 @@ def getAdoption():
             db.session.query(Data).filter(Data.Customer_Name == customer).filter(Data.QUARTER == quarter_to_show).update({Data.ADOPTION : adoption_dict[customer]})
             db.session.commit()
 
-    print(len(adoption_dict))
+    # print(len(adoption_dict))
     # sorted(adoption_dict.items(), key=lambda x: x[1], reverse=True)    
     # # print(adoption_dict)
 
@@ -963,6 +970,8 @@ def getReportedDataSinceDays(num):
     
     # print(" Total Active Customers: %s " % customer_Count)
     # print(" Within Range Data: %s " % within_Range)
+    # for record in within_Range:
+    #     print("Customer is ", record.Customer_Name + "Date is ", record.Last_Reported_Date)
 
     sinceDays = {}
     sinceDays['Within Range'] = within_Range
