@@ -10,6 +10,7 @@ import math, json
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.utils import secure_filename
 from flask import jsonify
+import simplejson as json
 
 app=Flask(__name__)
 CORS(app)
@@ -115,16 +116,18 @@ class SalesData(db.Model):
     __tablename__="sfdc_data"
     id = db.Column(db.Integer, primary_key=True)
     CUSTOMER_NAME = db.Column(db.String(120))
+    TERM = db.Column(db.Integer())
     QTR_SOLD = db.Column(db.String(10))
     QTY_SOLD = db.Column(db.Integer())
     PRODUCT_CODE = db.Column(db.String(50))
     CALM_TCV = db.Column(db.String(50))
 
-    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV):
+    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM):
         
         self.CUSTOMER_NAME = CUSTOMER_NAME
         self.QTR_SOLD = QTR_SOLD
         self.PRODUCT_CODE = PRODUCT_CODE
+        self.TERM = TERM
         self.QTY_SOLD = QTY_SOLD
         self.CALM_TCV = CALM_TCV
 
@@ -359,15 +362,17 @@ def __intialize():
             QUARTER_SOLD = row[1].value
             
             PRODUCT_CODE = row[2].value
-
+        
             QTY_SOLD = row[3].value
 
             CALM_TCV = row[7].value
 
+            TERM = row[8].value
+
             if(ACCOUNT_NAME is not None):
 
                 #Populate the Data
-                salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV)
+                salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM)
                 
                 db.session.add(salesData)
                 # print("Entered Data for Account : ", ACCOUNT_NAME)    
@@ -384,10 +389,6 @@ def __intialize():
         sheet = wb.active
         row_count = sheet.max_row
         column_count = sheet.max_column
-        # print("Sheet Name is :", sheet)
-        
-        # print("Quarter is : ", excel[-11:-5])
-        # QUARTER = excel[-11:-5]
 
         for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
             ACCOUNT_NAME = row[1].value
@@ -403,7 +404,21 @@ def __intialize():
                     continue
 
                 #Populate the Data
-                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, OPEN_DATE)
+                if(OPEN_DATE is not None):
+                    if(type(OPEN_DATE) is str):
+                        tstr = OPEN_DATE.split("/")
+                        openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
+                    else:
+                        tstr = OPEN_DATE.strftime('%m-%d-%Y').split("-")
+                        openDate = tstr[2]+"-"+tstr[1]+"-"+tstr[0]
+                        
+                    # print("tstr ", tstr)
+                    # openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
+                    # print("Customer ", ACCOUNT_NAME)
+                    # print("Open Date ", openDate)
+                    # opendate = datetime.datetime.strptime(OPEN_DATE.strftime('%m-%d-%Y'), '%Y-%m-%d')
+                
+                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, openDate)
                 
                 db.session.add(supportData)
                 # print("Entered Data for Account : ", ACCOUNT_NAME)    
@@ -461,7 +476,10 @@ def getStats():
         # print(round(average_adoption, 2))
 
         unique_paid_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct().count()
-
+        total_licenses_sold = db.session.query(func.sum(SalesData.QTY_SOLD)).scalar()
+        total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
+        avg_term = db.session.query(func.avg(SalesData.TERM)).scalar()
+        print("avg term ", round(avg_term, 2))
         stats['active_customers'] = num_of_active_customers
         stats['active_BPs'] = num_of_active_BPs
         stats['running_APPs'] = num_of_running_APPs
@@ -476,6 +494,21 @@ def getStats():
         stats['licenses_required'] = num_of_licenses_required
         # stats['avg_adoption'] = round(average_adoption, 2)
         stats['paid_customers'] = unique_paid_customers
+        stats['avg_term'] = round(avg_term/12, 2)
+        stats['lifetime_tcv'] = total_tcv
+        stats['licenses_sold'] = total_licenses_sold
+
+        #All Pulse Customers
+        pulse_customers = db.session.query(Data.Customer_Name).distinct().filter(Data.QUARTER == quarter_to_show)
+        #All Paid Customers
+        sfdc_paid_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct()
+
+        unique_pulse_paid = 0
+        for customer in sfdc_paid_customers:
+            if(customer in pulse_customers):
+                unique_pulse_paid += 1
+
+        stats['pulse_paid'] = unique_pulse_paid
 
     return stats
 
@@ -974,6 +1007,7 @@ def getSupportData():
         
         customer = record.CUSTOMER_NAME
         cDate = record.DATE
+        # cDate = cDate.strftime("%Y/%m/%d")
 
         if(customer in support_dict):
             x = support_dict[customer]
@@ -990,13 +1024,17 @@ def getSupportData():
         else:
             support_date_dict[customer] = cDate
         
-    print(support_dict)
+    # print(support_dict)
     # return support_dict
     for key in support_dict:
         support_record = {}
         support_record["Customer_Name"] = key
         support_record["Value"] = support_dict[key]
-        support_record["Date"] = support_date_dict[key].strftime("%Y/%m/%d")
+        # tdate = datetime.datetime.strptime(support_date_dict[key].strftime('%Y-%m-%d'), '%Y-%d-%m')
+        tdate = support_date_dict[key]
+        print ("TDate is ", tdate )
+        support_record["Date"] = tdate.strftime('%Y-%m-%d')
+        # datetime.datetime.strftime(support_date_dict[key].strftime('%Y-%m-%d'), '%Y-%m-%d')
         if(key in paid_customers):
             support_record["Paid"] = "Yes"
         else:
@@ -1004,7 +1042,7 @@ def getSupportData():
 
         support_records.append(support_record)
 
-    print(support_records)
+    # print(support_records)
 
     return jsonify({'Support records': support_records})
 

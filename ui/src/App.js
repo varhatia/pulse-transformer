@@ -50,6 +50,9 @@ function App() {
   const [paid_customers_list, setPaidCustomersList] = useState([]);
   const [licensed_unique_VMs, setLicensedUniqueVMs] = useState(0);
   const [licenses_required, setLicensesRequired] = useState(0);
+  const [licenses_sold, setLicensesSold] = useState(0);
+  const [avg_term, setAvgTerm] = useState(0);
+  const [pulse_paid, setPulsePaid] = useState(0);
   const [avg_adoption, setAvgAdoption] = useState(0);
   
   const [qtrRows, setQtrRows] = useState([]);
@@ -149,8 +152,6 @@ function App() {
     setCustSupportCases(data["SupportCases"])
     setCustLastReportedDate(data["ReportedDate"])
     setCustAdoption(data["Adoption"])
-    
-
   };
 
 
@@ -170,7 +171,9 @@ function App() {
       setPaidCustomers(data.paid_customers);
       setLicensedUniqueVMs(data.licensed_unique_VMs);
       setLicensesRequired(data.licenses_required);
-      // setAvgAdoption(data.avg_adoption);
+      setLicensesSold(data.licenses_sold);
+      setAvgTerm(data.avg_term);
+      setPulsePaid(data.pulse_paid);
     });
 
     fetch('/getStatsByQtr').then(res => res.json()).then(data => {
@@ -389,7 +392,7 @@ function App() {
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Paid Customers 
+                          Paid Customers (SFDC)
                         </Typography>
                         <Typography variant="h5" component="h2">
                             {paid_customers}
@@ -401,7 +404,7 @@ function App() {
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Active Customers 
+                          Active Customers (Pulse)
                         </Typography>
                         <Typography variant="h5" component="h2">
                           {active_customers}
@@ -410,6 +413,30 @@ function App() {
                     </Card>
                   </TableCell>
                   <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Paid Customers (Pulse)
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {pulse_paid}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Licenses Sold (Lifetime)
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {licenses_sold}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TableCell>
+                  {/* <TableCell align="left">
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
@@ -432,20 +459,20 @@ function App() {
                         </Typography>
                       </CardContent>
                     </Card>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
                 <TableRow>
                   <TableCell align="left">
                     <Card className={classes.root} align="left">
-                        <CardContent>
-                          <Typography className={classes.title} color="textSecondary" gutterBottom>
-                            Managed VMs
-                          </Typography>
-                          <Typography variant="h5" component="h2">
-                            {managed_VM}
-                          </Typography>
-                        </CardContent>
-                      </Card>
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Avg Term
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                          {avg_term} yr
+                        </Typography>
+                      </CardContent>
+                    </Card>
                   </TableCell>
                   <TableCell align="left">
                     <Card className={classes.root} align="left">
@@ -487,15 +514,15 @@ function App() {
                 <TableRow>
                   <TableCell align="left">
                     <Card className={classes.root} align="left">
-                      <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Active Existing VMs
-                        </Typography>
-                        <Typography variant="h5" component="h2">
-                          {active_Existing_VMs}
-                        </Typography>
-                      </CardContent>
-                    </Card>
+                        <CardContent>
+                          <Typography className={classes.title} color="textSecondary" gutterBottom>
+                            Managed VMs
+                          </Typography>
+                          <Typography variant="h5" component="h2">
+                            {managed_VM}
+                          </Typography>
+                        </CardContent>
+                      </Card>
                   </TableCell>
                   <TableCell>
                     <Card className={classes.root} align="left">
@@ -741,7 +768,7 @@ function App() {
                 <TableCell>
                   <MaterialTable
                   icons={tableIcons}
-                  title="Customers using Public Cloud"
+                  title="Public Cloud Customers"
                   columns={PublicAccount.columns}
                   data={publicAccountRows}
                   />  
