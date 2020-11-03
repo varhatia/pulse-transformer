@@ -333,7 +333,7 @@ function App() {
       { title: 'Customer', field: 'Customer' },
       { title: 'AWS', field: 'AWS', type: 'numeric' },
       { title: 'AZURE', field: 'AZURE', type: 'numeric' },
-      // { title: 'GCP', field: 'GCP', type: 'numeric' }
+      { title: 'GCP', field: 'GCP', type: 'numeric' }
     ],
   });
 
@@ -439,32 +439,6 @@ function App() {
                       </CardContent>
                     </Card>
                   </TableCell>
-                  {/* <TableCell align="left">
-                    <Card className={classes.root} align="left">
-                      <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Active BPs
-                        </Typography>
-                        <Typography variant="h5" component="h2">
-                          {active_BPs}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </TableCell>
-                  <TableCell>
-                    <Card className={classes.root} align="left">
-                      <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Running APPs
-                        </Typography>
-                        <Typography variant="h5" component="h2">
-                          {running_APPs}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </TableCell> */}
-                </TableRow>
-                <TableRow>
                   <TableCell align="left">
                     <Card className={classes.root} align="left">
                       <CardContent>
@@ -476,6 +450,33 @@ function App() {
                         </Typography>
                       </CardContent>
                     </Card>
+                  </TableCell>
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                      <CardContent>
+                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                          Average Adoption 
+                        </Typography>
+                        <Typography variant="h5" component="h2">
+                            {avg_adoption} %
+                        </Typography>
+                      </CardContent>
+                      </Card>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                
+                  <TableCell align="left">
+                    <Card className={classes.root} align="left">
+                        <CardContent>
+                          <Typography className={classes.title} color="textSecondary" gutterBottom>
+                            Managed VMs
+                          </Typography>
+                          <Typography variant="h5" component="h2">
+                            {managed_VM}
+                          </Typography>
+                        </CardContent>
+                      </Card>
                   </TableCell>
                   <TableCell align="left">
                     <Card className={classes.root} align="left">
@@ -513,20 +514,6 @@ function App() {
                       </CardContent>
                     </Card>
                   </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell align="left">
-                    <Card className={classes.root} align="left">
-                        <CardContent>
-                          <Typography className={classes.title} color="textSecondary" gutterBottom>
-                            Managed VMs
-                          </Typography>
-                          <Typography variant="h5" component="h2">
-                            {managed_VM}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                  </TableCell>
                   <TableCell>
                     <Card className={classes.root} align="left">
                       <CardContent>
@@ -551,83 +538,51 @@ function App() {
                       </CardContent>
                       </Card>
                   </TableCell>
-                  <TableCell align="left">
-                    <Card className={classes.root} align="left">
-                      <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Average Adoption 
-                        </Typography>
-                        <Typography variant="h5" component="h2">
-                            {avg_adoption} %
-                        </Typography>
-                      </CardContent>
-                      </Card>
-                  </TableCell>
+                  
                 </TableRow>
+                
+              </TableCell>
+            </TableRow>
+            </TableBody>     
+        </Table>
+        <Table>
+        <TableBody>
+            <TableRow>
+              <TableCell>
+                <MaterialTable
+                icons={tableIcons}
+                title="License Purchased"
+                columns={License.columns}
+                data={licenseRows}
+                />  
               </TableCell>
               <TableCell>
-                {/* <form onSubmit={handleUploadImage}>
-                  <div>
-                    <input type="file" name="file"
-                    onChange={event => setFile(event.target.files[0])}
-                    />
-                  </div>
-                    <br />
-                  <div>
-                    <button>Upload</button>
-                  </div>
-                </form> */}
-                  <form onSubmit={handleSubmit}>
-                    <label><strong>{withinRange}</strong> Active customers reported data within last <strong>{index}</strong> weeks </label>
-                    <br></br>
-                    <br></br>
-                    <label>Customize weeks </label>
-                    <input
-                    value={index}
-                    label="Enter X "
-                    onChange={event => setIndex(event.target.value)}
-                    />
-                    <button>Submit</button>
-                  {/* <h3>Within Range Customers : {withinRange}</h3> */}
-                </form>
+                <MaterialTable
+                icons={tableIcons}
+                title="Support Cases"
+                columns={Support.columns}
+                data={supportRows}
+                />  
               </TableCell>
-              </TableRow> 
-              <TableRow>
-                <TableCell>
-                  <MaterialTable
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <MaterialTable
                   icons={tableIcons}
-                  title="License Purchased"
-                  columns={License.columns}
-                  data={licenseRows}
-                  />  
-                </TableCell>
-                <TableCell>
-                  <MaterialTable
+                  title="Paid Customers Adoption Rate (Active in last 6 months)"
+                  columns={AdoptionRate.columns}
+                  data={adoptionRateRows}
+                />
+              </TableCell>
+              <TableCell>
+                <MaterialTable
                   icons={tableIcons}
-                  title="Support Cases"
-                  columns={Support.columns}
-                  data={supportRows}
-                  />  
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <MaterialTable
-                    icons={tableIcons}
-                    title="Paid Customers Adoption Rate (Active in last 6 months)"
-                    columns={AdoptionRate.columns}
-                    data={adoptionRateRows}
-                  />
-                </TableCell>
-                <TableCell>
-                  <MaterialTable
-                    icons={tableIcons}
-                    title="Calm Versions vs Customers"
-                    columns={CalmVersionDistro.columns}
-                    data={calmVersionRows}
-                  />
-                </TableCell>
-              </TableRow>
+                  title="Calm Versions vs Customers"
+                  columns={CalmVersionDistro.columns}
+                  data={calmVersionRows}
+                />
+              </TableCell>
+            </TableRow>
               <TableRow>
                 <TableCell>
                   <Paper>
@@ -653,64 +608,18 @@ function App() {
                   </LineChart>
                     </Paper>
                 </TableCell>
-              {/* </TableRow> */}
-              {/* <TableRow> */}
-                {/* <TableCell>
+                <TableCell>
                   <Paper>
-                    <h3>QoQ VMs, BPs, Apps growth</h3>
-                    <BarChart
-                  width={500}
-                  height={300}
-                  data={custData}
-                  margin={{
-                  top: 20, right: 30, left: 20, bottom: 5,
-                  }}
-                  > 
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="APPs" stackId="a" fill="#8884d8" />
-                  <Bar dataKey="BPs" stackId="a" fill="#82ca9d" />
-                  <Bar dataKey="VMs" stackId="a" fill="#d8bb84" />
-                  </BarChart>
+                    <label><strong>Additional Details</strong></label>
+                    <br></br><p> Last reported date <strong>{custLastReportedDate}</strong> weeks </p>
+                    <p> Support cases Raised till date <strong>{custSupportCases}</strong> </p>
+                    <p> Calm version in use <strong>{custCalmVersion}</strong> </p>
+                    <p> Calm adoption is <strong>{custAdoption} %</strong> </p>
+                    <p> Calm licenses purchased <strong>{custLicensesPurchased}</strong> </p>
+                    <br></br>
                   </Paper>
-                </TableCell> */}
-                
-                {/* <TableCell>
-                  <Paper>
-                    <LineChart
-                    width={500}
-                    height={300}
-                    data={custData}
-                    margin={{
-                    top: 5, right: 30, left: 20, bottom: 5,
-                    }}
-                    >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="APPs" stroke="#8884d8" activeDot={{ r: 8 }} />
-                    <Line type="monotone" dataKey="BPs" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="VMs" stroke="#d8bb84" />
-                  </LineChart>
-                </Paper>
-              </TableCell> */}
-              <TableCell>
-                <Paper>
-                  <label><strong>Additional Details</strong></label>
-                  <br></br><p> Last reported date <strong>{custLastReportedDate}</strong> weeks </p>
-                  <p> Support cases Raised till date <strong>{custSupportCases}</strong> </p>
-                  <p> Calm version in use <strong>{custCalmVersion}</strong> </p>
-                  <p> Calm adoption is <strong>{custAdoption} %</strong> </p>
-                  <p> Calm licenses purchased <strong>{custLicensesPurchased}</strong> </p>
-                  <br></br>
-                </Paper>
-              </TableCell>
-            </TableRow> 
+                </TableCell>
+              </TableRow> 
               <TableRow>
                 <TableCell>
                   <Paper>
@@ -777,7 +686,6 @@ function App() {
                   />  
                 </TableCell>
               </TableRow>
-              
           </TableBody>     
         </Table>
       </header>
