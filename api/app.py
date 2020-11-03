@@ -165,7 +165,6 @@ def quarter(i):
 def __intialize():
     
     excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
-    
     for excel in excelList:
 
         wb = openpyxl.load_workbook(excel)
@@ -341,8 +340,7 @@ def __intialize():
         
         db.session.commit()
 
-    excelList = ["Calm_Licenses_Sold-FY'20.xlsx"]
-    
+    excelList = ["Calm_Licenses_Sold-FY'21Q1.xlsx"]
     for excel in excelList:
 
         wb = openpyxl.load_workbook(excel)
@@ -421,7 +419,7 @@ def __intialize():
                 supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, openDate)
                 
                 db.session.add(supportData)
-                # print("Entered Data for Account : ", ACCOUNT_NAME)    
+                #print("Entered Data for Account : ", ACCOUNT_NAME)    
         
         db.session.commit()
 
@@ -476,7 +474,19 @@ def getStats():
         # print(round(average_adoption, 2))
 
         unique_paid_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct().count()
-        total_licenses_sold = db.session.query(func.sum(SalesData.QTY_SOLD)).scalar()
+        
+        total_licenses_sold = 0
+        total_cores_sold = 0
+
+        licenses_purchased = db.session.query(SalesData.PRODUCT_CODE, SalesData.QTY_SOLD).all()
+        for record in licenses_purchased:
+            if("CORE" in record.PRODUCT_CODE):
+                total_cores_sold = total_cores_sold + record.QTY_SOLD
+            else:
+                total_licenses_sold = total_licenses_sold + record.QTY_SOLD
+
+        # total_licenses_sold = db.session.query(func.sum(SalesData.QTY_SOLD)).scalar()
+
         total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
         avg_term = db.session.query(func.avg(SalesData.TERM)).scalar()
         print("avg term ", round(avg_term, 2))
@@ -497,6 +507,7 @@ def getStats():
         stats['avg_term'] = round(avg_term/12, 2)
         stats['lifetime_tcv'] = total_tcv
         stats['licenses_sold'] = total_licenses_sold
+        stats['cores_sold'] = total_cores_sold
 
         #All Pulse Customers
         pulse_customers = db.session.query(Data.Customer_Name).distinct().filter(Data.QUARTER == quarter_to_show)
@@ -599,7 +610,7 @@ def getPaidCustomersList():
 def getCalmVersionDistro():
     #Prepare Calm Version records
     version_records = []
-    calm_versions_records = db.session.query(Data.Customer_Name, Data.CALM_VERSION).all()
+    calm_versions_records = db.session.query(Data.Customer_Name, Data.CALM_VERSION).filter(Data.QUARTER == quarter_to_show).all()
     version_dict = {}
 
     for record in calm_versions_records:

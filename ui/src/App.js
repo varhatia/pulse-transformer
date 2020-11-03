@@ -51,6 +51,7 @@ function App() {
   const [licensed_unique_VMs, setLicensedUniqueVMs] = useState(0);
   const [licenses_required, setLicensesRequired] = useState(0);
   const [licenses_sold, setLicensesSold] = useState(0);
+  const [cores_sold, setCoresSold] = useState(0);
   const [avg_term, setAvgTerm] = useState(0);
   const [pulse_paid, setPulsePaid] = useState(0);
   const [avg_adoption, setAvgAdoption] = useState(0);
@@ -172,6 +173,8 @@ function App() {
       setLicensedUniqueVMs(data.licensed_unique_VMs);
       setLicensesRequired(data.licenses_required);
       setLicensesSold(data.licenses_sold);
+      setCoresSold(data.cores_sold)
+
       setAvgTerm(data.avg_term);
       setPulsePaid(data.pulse_paid);
     });
@@ -428,10 +431,10 @@ function App() {
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Licenses Sold (Lifetime)
+                          Licenses/Cores Sold (Lifetime)
                         </Typography>
                         <Typography variant="h5" component="h2">
-                          {licenses_sold}
+                          {licenses_sold} / {cores_sold}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -611,7 +614,7 @@ function App() {
                 <TableCell>
                   <MaterialTable
                     icons={tableIcons}
-                    title="Customers Adoption Rate (Active in last 6 months)"
+                    title="Paid Customers Adoption Rate (Active in last 6 months)"
                     columns={AdoptionRate.columns}
                     data={adoptionRateRows}
                   />
