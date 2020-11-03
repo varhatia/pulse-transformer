@@ -976,8 +976,9 @@ def getCustomerExtraDetails(name):
 def getReportedDataSinceDays(num):
     current_time = datetime.datetime.utcnow()
     num_weeks_ago = current_time - datetime.timedelta(weeks=int(num))
-    within_Range = db.session.query(Data).filter(Data.QUARTER == quarter_to_show).filter(Data.Last_Reported_Date > num_weeks_ago).count()
+    # within_Range = db.session.query(Data).filter(Data.QUARTER == quarter_to_show).filter(Data.Last_Reported_Date > num_weeks_ago).count()
     customer_Count = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == quarter_to_show).scalar()
+    within_Range = db.session.query(func.count(Data.Customer_Name)).filter(Data.QUARTER == quarter_to_show).scalar()
     
     # print(" Total Active Customers: %s " % customer_Count)
     # print(" Within Range Data: %s " % within_Range)
@@ -1000,6 +1001,8 @@ def getLicenseData():
         license_record["QTY_SOLD"] = record.QTY_SOLD
         license_record["QTR_SOLD"] = record.QTR_SOLD
         license_record["CALM_TCV"] = record.CALM_TCV
+        license_record["SKU"] = record.PRODUCT_CODE
+        
 
         license_records.append(license_record)
 

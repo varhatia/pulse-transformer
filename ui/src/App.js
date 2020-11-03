@@ -342,6 +342,7 @@ function App() {
     columns: [
       { title: 'Customer', field: 'CUSTOMER' },
       { title: 'Quarter', field: 'QTR_SOLD'},
+      { title: 'SKU', field: 'SKU'},
       { title: 'Calm TCV ($)', field: 'CALM_TCV', type: 'numeric'},
       { title: 'Quantity', field: 'QTY_SOLD', type: 'numeric' }
     ],
