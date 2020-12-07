@@ -11,6 +11,13 @@ from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.utils import secure_filename
 from flask import jsonify
 import simplejson as json
+import time
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
+import glob
+import os
+
+
 
 app=Flask(__name__)
 CORS(app)
@@ -22,6 +29,11 @@ db=SQLAlchemy(app)
 
 # files_path="."
 quarter_to_show= "Q12021"
+current_quarter = "Q12021"
+
+last_pulse_update_time = ""
+last_sfdc_update_time = ""
+last_support_update_time = ""
 
 if(db is None):
     print("DB not init")
@@ -161,268 +173,276 @@ def quarter(i):
     }
     return switcher.get(i)
 
+def process_pulse(pulse_excel):
+    wb = openpyxl.load_workbook(pulse_excel)
+    print(wb.sheetnames)
+
+    sheet = wb.active
+    row_count = sheet.max_row
+    column_count = sheet.max_column
+    
+    #getQuarter from filename
+    print("Quarter is : ", pulse_excel[-17:-11])
+    QUARTER = pulse_excel[-17:-11]
+
+    version_dict = {}
+
+    for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+        #print("PC_Cluster_UUID : ", row[0].value) #1
+        PC_Cluster_UUID = row[0].value
+        
+        #print("Customer_Name : ", row[2].value)
+        Customer_Name = row[2].value
+        
+        #print("Account_Theater : ", row[5].value) #6
+        Account_Theater = row[5].value
+
+        #print("PC_VERSION : ", row[8].value)    #9
+        PC_VERSION = row[8].value
+
+        #print("CALM_VERSION : ", row[9].value)   #10
+        CALM_VERSION = row[9].value
+        
+        #print("EPSILON_VERSION : ", row[10].value) #11
+        EPSILON_VERSION = row[10].value
+
+        #print("Last_Reported_Date : ", row[11].value) #12
+        Last_Reported_Date = row[11].value
+        if(Last_Reported_Date is not None):
+            date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
+        else:
+            date = ""
+        
+        #print("ACTIVE_BP : ", row[12].value)       #13  
+        ACTIVE_BP = row[12].value
+
+        #print("RUNNING_APP : ", row[16].value)	    #16
+        RUNNING_APP = row[16].value
+
+        #print("PROVISIONING_APP : ", row[17].value) #18
+        PROVISIONING_APP = row[17].value
+
+        #print("ERROR_APP : ", row[18].value) #19	
+        ERROR_APP = row[18].value
+
+        #print("DELETED_APP : ", row[19].value)	#20
+        DELETED_APP = row[19].value
+
+        #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
+        TOTAL_MANAGED_VMS = row[20].value
+
+        #print("TOTAL_AHV_VMS : ", row[21].value)	#22
+        TOTAL_AHV_VMS = row[21].value
+
+        #print("TOTAL_AWS_VMS : ", row[22].value) #23
+        TOTAL_AWS_VMS = row[22].value
+        
+        #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
+        TOTAL_VMWARE_VMS = row[23].value
+        
+        #print("TOTAL_GCP_VMS : ", row[24].value) #25
+        TOTAL_GCP_VMS = row[24].value
+        
+        #print("TOTAL_AZURE_VMS : ", row[25].value) #26
+        TOTAL_AZURE_VMS = row[25].value
+        
+        #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
+        TOTAL_EXISTING_VMS = row[26].value
+        
+        #print("TOTAL_K8S_POD : ", row[27].value) #28
+        TOTAL_K8S_POD = row[27].value
+        
+        #print("ACTIVE_AHV_VMS : ", row[28].value) #29
+        ACTIVE_AHV_VMS = row[28].value
+        
+        #print("ACTIVE_AWS_VMS : ", row[29].value) #30
+        ACTIVE_AWS_VMS = row[29].value
+        
+        #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
+        ACTIVE_VMWARE_VMS = row[30].value
+        
+        #print("ACTIVE_GCP_VMS : ", row[31].value) #32
+        ACTIVE_GCP_VMS = row[31].value
+        
+        #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
+        ACTIVE_AZURE_VMS = row[32].value
+        
+        #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
+        ACTIVE_EXISTING_VMS = row[33].value
+        
+        #print("ACTIVE_K8S_POD : ", row[34].value) #35
+        ACTIVE_K8S_POD = row[34].value
+        
+        #print("AWS_ACCOUNT : ", row[35].value) #36
+        AWS_ACCOUNT = row[35].value
+        
+        #print("VMWARE_ACCOUNT : ", row[36].value) #37
+        VMWARE_ACCOUNT = row[36].value
+        
+        #print("GCP_ACCOUNT : ", row[37].value) #38
+        GCP_ACCOUNT = row[37].value
+        
+        #print("AZURE_ACCOUNT : ", row[38].value) #39
+        AZURE_ACCOUNT = row[38].value
+
+        #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
+        LICENSE_VMS_COUNTS = row[44].value
+        
+        #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
+        LICENSE_UNIQUE_VMS_COUNT = row[45].value
+        
+        #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
+        LICENSE_REQUIRED_PACKS = row[46].value                 
+
+        if(Customer_Name is not None):
+
+            if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name) or ("POC" in Customer_Name)):
+                # print("Handling Ntnx acccounts. So skipping")
+                continue
+
+            if(CALM_VERSION in version_dict):
+                x = version_dict[CALM_VERSION]
+                version_dict[CALM_VERSION] = x+1  
+            else:
+                version_dict[CALM_VERSION] = 1
+            
+            # #current quarter
+            # current_time = datetime.datetime.utcnow()
+            # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
+
+            #Adoption
+            if(LICENSE_UNIQUE_VMS_COUNT is not None):
+                if(LICENSE_UNIQUE_VMS_COUNT != 0):
+                    # ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
+                    ADOPTION = 0
+                    
+                else:
+                    ADOPTION = -1    
+            else:
+                ADOPTION = -1
+
+            #Softdelete
+            if(TOTAL_AHV_VMS is not None):
+                if(TOTAL_AHV_VMS != 0):
+                    PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
+                
+                else:
+                    PERCENT_VMs_INUSE = -1   
+            else:
+                PERCENT_VMs_INUSE = -1
+            
+            #Public Account
+            if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
+                PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
+            
+            else:
+                PUBLIC_ACCOUNT = -1
+
+            #Populate the Data
+            data=Data(PC_Cluster_UUID, Customer_Name.capitalize(), Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
+            AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
+            
+            db.session.add(data)
+            # print("Entered Data for customer : ", Customer_Name)    
+    
+    db.session.commit()
+
+def process_sfdc(sfdc_excel):
+    wb = openpyxl.load_workbook(sfdc_excel)
+    print(wb.sheetnames)
+
+    sheet = wb.active
+    row_count = sheet.max_row
+    column_count = sheet.max_column
+    print("Sheet Name is :", sheet)
+    
+    # print("Quarter is : ", excel[-11:-5])
+    # QUARTER = excel[-11:-5]
+
+    for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+        ACCOUNT_NAME = row[0].value
+        
+        QUARTER_SOLD = row[1].value
+        
+        PRODUCT_CODE = row[2].value
+    
+        QTY_SOLD = row[3].value
+
+        CALM_TCV = row[7].value
+
+        TERM = row[8].value
+
+        if(ACCOUNT_NAME is not None):
+
+            #Populate the Data
+            salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM)
+            
+            db.session.add(salesData)
+            # print("Entered Data for Account : ", ACCOUNT_NAME)    
+    
+    db.session.commit()
+
+def process_support(support_excel):
+    wb = openpyxl.load_workbook(support_excel)
+    print(wb.sheetnames)
+
+    sheet = wb.active
+    row_count = sheet.max_row
+    column_count = sheet.max_column
+
+    for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
+        ACCOUNT_NAME = row[1].value
+        
+        CASE_NUM = row[0].value
+        
+        OPEN_DATE = row[6].value
+
+        if(ACCOUNT_NAME is not None):
+
+            if(("Nutanix" in ACCOUNT_NAME) or ("Ntnx" in ACCOUNT_NAME) or ("POC" in ACCOUNT_NAME)):
+                # print("Handling Ntnx acccounts. So skipping")
+                continue
+
+            #Populate the Data
+            if(OPEN_DATE is not None):
+                if(type(OPEN_DATE) is str):
+                    tstr = OPEN_DATE.split("/")
+                    openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
+                else:
+                    tstr = OPEN_DATE.strftime('%m-%d-%Y').split("-")
+                    openDate = tstr[2]+"-"+tstr[1]+"-"+tstr[0]
+                    
+                # print("tstr ", tstr)
+                # openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
+                # print("Customer ", ACCOUNT_NAME)
+                # print("Open Date ", openDate)
+                # opendate = datetime.datetime.strptime(OPEN_DATE.strftime('%m-%d-%Y'), '%Y-%m-%d')
+            
+            supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, openDate)
+            
+            db.session.add(supportData)
+            #print("Entered Data for Account : ", ACCOUNT_NAME)    
+    
+    db.session.commit()
+
+
 @app.route("/")
 def __intialize():
-    
-    excelList = ["Calm_Customer_List_Q12020.xlsx", "Calm_Customer_List_Q22020.xlsx", "Calm_Customer_List_Q32020.xlsx", "Calm_Customer_List_Q42020.xlsx", "Calm_Customer_List_Q12021.xlsx"]
-    for excel in excelList:
+    print("Initialized loop")
+    excelList = ["Calm_Customer_List_Q12020_pulse.xlsx", "Calm_Customer_List_Q22020_pulse.xlsx", "Calm_Customer_List_Q32020_pulse.xlsx", "Calm_Customer_List_Q42020_pulse.xlsx", "Calm_Customer_List_Q12021_pulse.xlsx"]
+    for pulse_excel in excelList:
+        print("Initialized loop")
+        process_pulse(pulse_excel)
 
-        wb = openpyxl.load_workbook(excel)
-        # print(wb.sheetnames)
+    excelList = ["Calm_Licenses_Sold-FY'21Q1_sfdc.xlsx"]
+    for sfdc_excel in excelList:
+        process_sfdc(sfdc_excel)
 
-        sheet = wb.active
-        row_count = sheet.max_row
-        column_count = sheet.max_column
+    excelList = ["Calm_cases.xlsx"]
+    for support_excel in excelList:
+        print("Initialized cases")
+        process_support(support_excel)
         
-        #getQuarter from filename
-        print("Quarter is : ", excel[-11:-5])
-        QUARTER = excel[-11:-5]
-
-        version_dict = {}
-
-        for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-            #print("PC_Cluster_UUID : ", row[0].value) #1
-            PC_Cluster_UUID = row[0].value
-            
-            #print("Customer_Name : ", row[2].value)
-            Customer_Name = row[2].value
-            
-            #print("Account_Theater : ", row[5].value) #6
-            Account_Theater = row[5].value
-
-            #print("PC_VERSION : ", row[8].value)    #9
-            PC_VERSION = row[8].value
-
-            #print("CALM_VERSION : ", row[9].value)   #10
-            CALM_VERSION = row[9].value
-            
-            #print("EPSILON_VERSION : ", row[10].value) #11
-            EPSILON_VERSION = row[10].value
-
-            #print("Last_Reported_Date : ", row[11].value) #12
-            Last_Reported_Date = row[11].value
-            if(Last_Reported_Date is not None):
-                date = datetime.datetime.strptime(Last_Reported_Date, '%d-%m-%Y')
-            else:
-                date = ""
-            
-            #print("ACTIVE_BP : ", row[12].value)       #13  
-            ACTIVE_BP = row[12].value
-
-            #print("RUNNING_APP : ", row[16].value)	    #16
-            RUNNING_APP = row[16].value
-
-            #print("PROVISIONING_APP : ", row[17].value) #18
-            PROVISIONING_APP = row[17].value
-
-            #print("ERROR_APP : ", row[18].value) #19	
-            ERROR_APP = row[18].value
-
-            #print("DELETED_APP : ", row[19].value)	#20
-            DELETED_APP = row[19].value
-
-            #print("TOTAL_MANAGED_VMS : ", row[20].value) #21
-            TOTAL_MANAGED_VMS = row[20].value
-
-            #print("TOTAL_AHV_VMS : ", row[21].value)	#22
-            TOTAL_AHV_VMS = row[21].value
-
-            #print("TOTAL_AWS_VMS : ", row[22].value) #23
-            TOTAL_AWS_VMS = row[22].value
-            
-            #print("TOTAL_VMWARE_VMS : ", row[23].value) #24
-            TOTAL_VMWARE_VMS = row[23].value
-            
-            #print("TOTAL_GCP_VMS : ", row[24].value) #25
-            TOTAL_GCP_VMS = row[24].value
-            
-            #print("TOTAL_AZURE_VMS : ", row[25].value) #26
-            TOTAL_AZURE_VMS = row[25].value
-            
-            #print("TOTAL_EXISTING_VMS : ", row[26].value) #27
-            TOTAL_EXISTING_VMS = row[26].value
-            
-            #print("TOTAL_K8S_POD : ", row[27].value) #28
-            TOTAL_K8S_POD = row[27].value
-            
-            #print("ACTIVE_AHV_VMS : ", row[28].value) #29
-            ACTIVE_AHV_VMS = row[28].value
-            
-            #print("ACTIVE_AWS_VMS : ", row[29].value) #30
-            ACTIVE_AWS_VMS = row[29].value
-            
-            #print("ACTIVE_VMWARE_VMS : ", row[30].value) #31
-            ACTIVE_VMWARE_VMS = row[30].value
-            
-            #print("ACTIVE_GCP_VMS : ", row[31].value) #32
-            ACTIVE_GCP_VMS = row[31].value
-            
-            #print("ACTIVE_AZURE_VMS : ", row[32].value) #33
-            ACTIVE_AZURE_VMS = row[32].value
-            
-            #print("ACTIVE_EXISTING_VMS : ", row[33].value) #34
-            ACTIVE_EXISTING_VMS = row[33].value
-            
-            #print("ACTIVE_K8S_POD : ", row[34].value) #35
-            ACTIVE_K8S_POD = row[34].value
-            
-            #print("AWS_ACCOUNT : ", row[35].value) #36
-            AWS_ACCOUNT = row[35].value
-            
-            #print("VMWARE_ACCOUNT : ", row[36].value) #37
-            VMWARE_ACCOUNT = row[36].value
-            
-            #print("GCP_ACCOUNT : ", row[37].value) #38
-            GCP_ACCOUNT = row[37].value
-            
-            #print("AZURE_ACCOUNT : ", row[38].value) #39
-            AZURE_ACCOUNT = row[38].value
-
-            #print("LICENSE_VMS_COUNTS : ", row[44].value) #45
-            LICENSE_VMS_COUNTS = row[44].value
-            
-            #print("LICENSE_UNIQUE_VMS_COUNT : ", row[45].value) #46
-            LICENSE_UNIQUE_VMS_COUNT = row[45].value
-            
-            #print("LICENSE_REQUIRED_PACKS : ", row[46].value) #47                     
-            LICENSE_REQUIRED_PACKS = row[46].value                 
-
-            if(Customer_Name is not None):
-
-                if(("Nutanix" in Customer_Name) or ("Ntnx" in Customer_Name) or ("POC" in Customer_Name)):
-                    # print("Handling Ntnx acccounts. So skipping")
-                    continue
-
-                if(CALM_VERSION in version_dict):
-                    x = version_dict[CALM_VERSION]
-                    version_dict[CALM_VERSION] = x+1  
-                else:
-                    version_dict[CALM_VERSION] = 1
-                
-                # #current quarter
-                # current_time = datetime.datetime.utcnow()
-                # QUARTER = str(quarter(current_time.month)) + "'" + str(current_time.year)
-
-                #Adoption
-                if(LICENSE_UNIQUE_VMS_COUNT is not None):
-                    if(LICENSE_UNIQUE_VMS_COUNT != 0):
-                        # ADOPTION = round((LICENSE_UNIQUE_VMS_COUNT/(LICENSE_REQUIRED_PACKS*25))*100,2)
-                        ADOPTION = 0
-                        
-                    else:
-                        ADOPTION = -1    
-                else:
-                    ADOPTION = -1
-
-                #Softdelete
-                if(TOTAL_AHV_VMS is not None):
-                    if(TOTAL_AHV_VMS != 0):
-                        PERCENT_VMs_INUSE = round((ACTIVE_AHV_VMS/TOTAL_AHV_VMS)*100,2)
-                    
-                    else:
-                        PERCENT_VMs_INUSE = -1   
-                else:
-                    PERCENT_VMs_INUSE = -1
-                
-                #Public Account
-                if(AWS_ACCOUNT > 0 or AZURE_ACCOUNT > 0 or GCP_ACCOUNT > 0):
-                    PUBLIC_ACCOUNT = AWS_ACCOUNT + AZURE_ACCOUNT + GCP_ACCOUNT
-                
-                else:
-                    PUBLIC_ACCOUNT = -1
-
-                #Populate the Data
-                data=Data(PC_Cluster_UUID, Customer_Name.capitalize(), Account_Theater, PC_VERSION, CALM_VERSION, EPSILON_VERSION, date, ACTIVE_BP, RUNNING_APP, PROVISIONING_APP, ERROR_APP, DELETED_APP, TOTAL_MANAGED_VMS, TOTAL_AHV_VMS, TOTAL_AWS_VMS, TOTAL_VMWARE_VMS, TOTAL_GCP_VMS, TOTAL_AZURE_VMS, TOTAL_EXISTING_VMS, TOTAL_K8S_POD, ACTIVE_AHV_VMS, ACTIVE_AWS_VMS, ACTIVE_VMWARE_VMS, ACTIVE_GCP_VMS, ACTIVE_AZURE_VMS, ACTIVE_EXISTING_VMS, ACTIVE_K8S_POD, LICENSE_VMS_COUNTS, LICENSE_UNIQUE_VMS_COUNT, LICENSE_REQUIRED_PACKS, QUARTER, ADOPTION, PERCENT_VMs_INUSE,
-                AWS_ACCOUNT, VMWARE_ACCOUNT, AZURE_ACCOUNT, GCP_ACCOUNT, PUBLIC_ACCOUNT)
-                
-                db.session.add(data)
-                # print("Entered Data for customer : ", Customer_Name)    
-        
-        db.session.commit()
-
-    excelList = ["Calm_Licenses_Sold-FY'21Q1.xlsx"]
-    for excel in excelList:
-
-        wb = openpyxl.load_workbook(excel)
-        print(wb.sheetnames)
-
-        sheet = wb.active
-        row_count = sheet.max_row
-        column_count = sheet.max_column
-        print("Sheet Name is :", sheet)
-        
-        # print("Quarter is : ", excel[-11:-5])
-        # QUARTER = excel[-11:-5]
-
-        for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-            ACCOUNT_NAME = row[0].value
-            
-            QUARTER_SOLD = row[1].value
-            
-            PRODUCT_CODE = row[2].value
-        
-            QTY_SOLD = row[3].value
-
-            CALM_TCV = row[7].value
-
-            TERM = row[8].value
-
-            if(ACCOUNT_NAME is not None):
-
-                #Populate the Data
-                salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM)
-                
-                db.session.add(salesData)
-                # print("Entered Data for Account : ", ACCOUNT_NAME)    
-        
-        db.session.commit()
-
-    excelList = ["Calm_Cases.xlsx"]
-    
-    for excel in excelList:
-
-        wb = openpyxl.load_workbook(excel)
-        print(wb.sheetnames)
-
-        sheet = wb.active
-        row_count = sheet.max_row
-        column_count = sheet.max_column
-
-        for row in sheet.iter_rows(min_row=2, min_col=1, max_row=row_count, max_col=column_count):  
-            ACCOUNT_NAME = row[1].value
-            
-            CASE_NUM = row[0].value
-            
-            OPEN_DATE = row[6].value
-
-            if(ACCOUNT_NAME is not None):
-
-                if(("Nutanix" in ACCOUNT_NAME) or ("Ntnx" in ACCOUNT_NAME) or ("POC" in ACCOUNT_NAME)):
-                    # print("Handling Ntnx acccounts. So skipping")
-                    continue
-
-                #Populate the Data
-                if(OPEN_DATE is not None):
-                    if(type(OPEN_DATE) is str):
-                        tstr = OPEN_DATE.split("/")
-                        openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
-                    else:
-                        tstr = OPEN_DATE.strftime('%m-%d-%Y').split("-")
-                        openDate = tstr[2]+"-"+tstr[1]+"-"+tstr[0]
-                        
-                    # print("tstr ", tstr)
-                    # openDate = tstr[2]+"-"+tstr[0]+"-"+tstr[1]
-                    # print("Customer ", ACCOUNT_NAME)
-                    # print("Open Date ", openDate)
-                    # opendate = datetime.datetime.strptime(OPEN_DATE.strftime('%m-%d-%Y'), '%Y-%m-%d')
-                
-                supportData = SupportData(ACCOUNT_NAME.capitalize(), CASE_NUM, openDate)
-                
-                db.session.add(supportData)
-                #print("Entered Data for Account : ", ACCOUNT_NAME)    
-        
-        db.session.commit()
-
     return ""
 
 @app.route("/getStats", methods=['GET']) 
@@ -1010,6 +1030,36 @@ def getLicenseData():
     
     return jsonify({'License Records': license_records})
 
+@app.route("/getTrialData", methods=['GET'])
+def getTrialData():
+    trial_customers = []
+    
+    licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).distinct().all()
+    paid_customers = []
+    for record in licenses_purchased:
+        # print("Cust name ", record.CUSTOMER_NAME)
+        if(record.CUSTOMER_NAME not in paid_customers):
+            paid_customers.append(record.CUSTOMER_NAME)
+   
+    # print("Paid Customers ", paid_customers)
+   
+    pulse_records = db.session.query(Data.Customer_Name, Data.CALM_VERSION, Data.LICENSE_VMS_COUNTS, Data.Last_Reported_Date).filter(Data.QUARTER == quarter_to_show).all()
+    for record in pulse_records:
+        customer = record.Customer_Name
+        if(customer not in paid_customers):
+            trialrecord = {}
+            trialrecord["CUSTOMER"] = record.Customer_Name
+            trialrecord["Version"] = record.CALM_VERSION
+            trialrecord["VMs"] = record.LICENSE_VMS_COUNTS
+            tdate = record.Last_Reported_Date
+            print ("TDate is ", tdate )
+            trialrecord["Date"] = tdate.strftime("%m/%d/%Y")
+        
+            # trialrecord["Date"] = record.Last_Reported_Date
+            trial_customers.append(trialrecord)
+    print(trial_customers)
+    return jsonify({'Trial Customers': trial_customers})
+
 @app.route("/getSupportData", methods=['GET'])
 def getSupportData():
     licenses_purchased = db.session.query(SalesData.CUSTOMER_NAME).distinct().all()
@@ -1019,7 +1069,7 @@ def getSupportData():
         if(record.CUSTOMER_NAME not in paid_customers):
             paid_customers.append(record.CUSTOMER_NAME)
     
-    # print("Paid CUstomers: ", paid_customers)
+    # print("Paid Customers: ", paid_customers)
 
     support_data = db.session.query(SupportData).all()
 
@@ -1095,8 +1145,109 @@ def fileUpload():
     response="Whatever you wish too return"
     
     return response
+
+def process_new_SFDC_file():
     
+    #Get Latest file
+    list_of_files = glob.glob('*_sfdc.xlsx') 
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
+    print(type(latest_file))
+
+    db.session.query(SalesData).delete()
+    db.session.commit()
+    
+    result = []
+    for root, dir, files in os.walk('.'):
+        if latest_file in files:
+            result.append(os.path.join(root, latest_file))
+
+    for excel in result:
+        process_sfdc(excel)
+    
+    today = date.today()
+    # Textual month, day and year	
+    d2 = today.strftime("%B %d, %Y")
+    print("d2 =", d2)
+    print("d2 =", type(d2))
+
+    global last_sfdc_update_time 
+    last_sfdc_update_time = d2
+    # total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
+    # print(total_tcv)
+
+def process_new_PULSE_file():
+    print("Processing new file")
+    #Get Latest file
+    list_of_files = glob.glob('*_pulse.xlsx') 
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
+    print(type(latest_file))
+
+    if(current_quarter == quarter_to_show):
+        db.session.query(Data).filter(Data.QUARTER == quarter_to_show).delete()
+        db.session.commit()
+        
+    result = []
+    for root, dir, files in os.walk('.'):
+        if latest_file in files:
+            result.append(os.path.join(root, latest_file))
+
+    for excel in result:
+        process_pulse(excel)
+
+    today = date.today()
+    # Textual month, day and year	
+    d2 = today.strftime("%B %d, %Y")
+    
+    global last_pulse_update_time
+    last_pulse_update_time = d2
+
+     
+def process_new_SUPPORT_file():
+    print("Processing new file")
+    #Get Latest file
+    list_of_files = glob.glob('*_cases.xlsx') 
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
+    print(type(latest_file))
+
+    db.session.query(SupportData).delete()
+    db.session.commit()
+        
+    result = []
+    for root, dir, files in os.walk('.'):
+        if latest_file in files:
+            result.append(os.path.join(root, latest_file))
+
+    for excel in result:
+        process_support(excel)
+
+    today = date.today()
+    # Textual month, day and year	
+    d2 = today.strftime("%B %d, %Y")
+    
+    global last_support_update_time
+    last_support_update_time = d2
+ 
+@app.route("/getLastPulseUpdateTime", methods=['GET'])
+def get_last_pulse_update_time():
+    return jsonify({'Pulse Update Time': last_pulse_update_time})
+
+@app.route("/getLastSFDCUpdateTime", methods=['GET'])
+def get_last_sfdc_update_time():
+    return jsonify({'SFDC Update Time': last_sfdc_update_time})
+
+@app.route("/getLastSupportUpdateTime", methods=['GET'])
+def get_last_support_update_time():
+    return jsonify({'Support Update Time': last_support_update_time})
+
 if __name__=="__main__":
-    app.run(debug=True)
+    scheduler = BackgroundScheduler()
+    # scheduler.add_job(func=process_newFile, trigger="interval", seconds=10)
+    # scheduler.add_job(func=process_new_SFDC_file, trigger="interval", seconds=20)
+    # scheduler.add_job(func=process_new_PULSE_file, trigger="interval", seconds=20)
+    # scheduler.add_job(func=process_new_SUPPORT_file, trigger="interval", seconds=30)
+    scheduler.start()
 
-
+    app.run(debug=True, use_reloader=False)

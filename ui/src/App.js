@@ -14,7 +14,7 @@ import Paper from '@material-ui/core/Paper';
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,CartesianGrid, Legend,
 } from 'recharts';
 
 import MaterialTable from 'material-table';
@@ -33,6 +33,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+
 import { forwardRef } from 'react';
 
 function App() {
@@ -70,11 +71,15 @@ function App() {
   const [publicAccountRows, setPublicAccountRows] = useState([]);
   const [adoptionRateRows, setAdoptionRateRows] = useState([]);
   const [licenseRows, setLicenseRows] = useState([]);
+  const [trialRows, setTrialRows] = useState([]);
+  
   const [supportRows, setSupportRows] = useState([]);
   const [withinRange, setWithinRange] = useState(0);
   
   const [index, setIndex] = useState(4);
   const [custName, setCustName] = useState();
+  const [lastPulseTime, setLastPulseTime] = useState();
+  const [lastSFDCTime, setLastSFDCTime] = useState();
   // const [file, setFile] = useState({});
   
   const handleSubmit = event => {
@@ -273,6 +278,16 @@ function App() {
       setLicenseRows(tRows)
     })
 
+    fetch('/getTrialData').then(res => res.json()).then(data => {
+      var rows = []
+      var tRows = []
+      console.log(data)
+      
+      rows = Object.values(data)
+      rows[0].map(item => tRows.push(item))
+      setTrialRows(tRows)
+    })
+
     fetch('/getSupportData').then(res => res.json()).then(data => {
       var rows = []
       var tRows = []
@@ -296,6 +311,14 @@ function App() {
     fetch('/getAverageAdoption').then(res => res.json()).then(data => {
       setAvgAdoption(data.avg_adoption);
     })
+
+    fetch('/getLastPulseUpdateTime').then(res => res.json()).then(data => {
+      setLastPulseTime(data["Pulse Update Time"]);
+    }) 
+    
+    fetch('/getLastSFDCUpdateTime').then(res => res.json()).then(data => {
+      setLastSFDCTime(data["SFDC Update Time"]);
+    }) 
   }, []);
 
   //Adoption Table
@@ -348,6 +371,16 @@ function App() {
     ],
   });
 
+  //Trial Table
+  const [Trial, setTrial] = React.useState({
+    columns: [
+      { title: 'Customer', field: 'CUSTOMER' },
+      { title: 'Version', field: 'Version'},
+      { title: 'Latest', field: 'Date'},
+      { title: 'VMs', field: 'VMs', type: 'numeric'}
+    ],
+  });
+
   //Support Table
   const [Support, setSupport] = React.useState({
     columns: [
@@ -392,7 +425,7 @@ function App() {
             <TableRow>
               <TableCell>
                 <TableRow>
-                  <TableCell align="left">
+                 <TableCell align="left">
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
@@ -401,11 +434,11 @@ function App() {
                         <Typography variant="h5" component="h2">
                             {paid_customers}
                         </Typography>
-                      </CardContent>
-                    </Card>
-                  </TableCell>
-                  <TableCell align="left">
-                    <Card className={classes.root} align="left">
+                        </CardContent>
+                      </Card>
+                    </TableCell>
+                   <TableCell align="left">
+                   <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
                           Active Customers (Pulse)
@@ -552,7 +585,7 @@ function App() {
               <TableCell>
                 <MaterialTable
                 icons={tableIcons}
-                title="License Purchased"
+                title="Paid Customers & Purchase"
                 columns={License.columns}
                 data={licenseRows}
                 />  
@@ -560,12 +593,17 @@ function App() {
               <TableCell>
                 <MaterialTable
                 icons={tableIcons}
-                title="Support Cases"
-                columns={Support.columns}
-                data={supportRows}
+                title="Trial Customers"
+                columns={Trial.columns}
+                data={trialRows}
                 />  
               </TableCell>
             </TableRow>
+            {/* <TableRow>
+              <TableCell>
+                <p>License data last updated at {lastSFDCTime}</p>
+              </TableCell>
+            </TableRow> */}
             <TableRow>
               <TableCell>
                 <MaterialTable
@@ -670,13 +708,21 @@ function App() {
                 </TableCell>
               </TableRow> 
               <TableRow>
-                <TableCell>
+                {/* <TableCell>
                   <MaterialTable
                     icons={tableIcons}
                     title="Soft Delete Customers"
                     columns={SoftDelete.columns}
                     data={softDeleteRows}
                   />
+                </TableCell> */}
+                <TableCell>
+                <MaterialTable
+                icons={tableIcons}
+                title="Support Cases"
+                columns={Support.columns}
+                data={supportRows}
+                />  
                 </TableCell>
                 <TableCell>
                   <MaterialTable
