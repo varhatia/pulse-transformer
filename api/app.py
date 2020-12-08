@@ -133,8 +133,12 @@ class SalesData(db.Model):
     QTY_SOLD = db.Column(db.Integer())
     PRODUCT_CODE = db.Column(db.String(50))
     CALM_TCV = db.Column(db.String(50))
+    CALM_ACV = db.Column(db.String(50))
+    ACCOUNT_REGION = db.Column(db.String(50))
+    G2K = db.Column(db.String(10))
 
-    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM):
+
+    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, ACCOUNT_REGION, G2K):
         
         self.CUSTOMER_NAME = CUSTOMER_NAME
         self.QTR_SOLD = QTR_SOLD
@@ -142,6 +146,10 @@ class SalesData(db.Model):
         self.TERM = TERM
         self.QTY_SOLD = QTY_SOLD
         self.CALM_TCV = CALM_TCV
+        self.CALM_ACV = CALM_ACV
+        self.ACCOUNT_REGION = ACCOUNT_REGION
+        self.G2K = G2K
+
 
 class SupportData(db.Model):
     __tablename__="support_data"
@@ -370,12 +378,18 @@ def process_sfdc(sfdc_excel):
 
         CALM_TCV = row[7].value
 
-        TERM = row[8].value
+        CALM_ACV = row[9].value
+        
+        TERM = row[10].value
+
+        REGION = row[11].value
+
+        G2K = row[12].value
 
         if(ACCOUNT_NAME is not None):
 
             #Populate the Data
-            salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM)
+            salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, REGION, G2K)
             
             db.session.add(salesData)
             # print("Entered Data for Account : ", ACCOUNT_NAME)    
@@ -507,7 +521,7 @@ def getStats():
 
         # total_licenses_sold = db.session.query(func.sum(SalesData.QTY_SOLD)).scalar()
 
-        total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
+        # total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
         avg_term = db.session.query(func.avg(SalesData.TERM)).scalar()
         print("avg term ", round(avg_term, 2))
         stats['active_customers'] = num_of_active_customers
@@ -525,7 +539,7 @@ def getStats():
         # stats['avg_adoption'] = round(average_adoption, 2)
         stats['paid_customers'] = unique_paid_customers
         stats['avg_term'] = round(avg_term/12, 2)
-        stats['lifetime_tcv'] = total_tcv
+        # stats['lifetime_tcv'] = total_tcv
         stats['licenses_sold'] = total_licenses_sold
         stats['cores_sold'] = total_cores_sold
 
@@ -1022,8 +1036,10 @@ def getLicenseData():
         license_record["QTR_SOLD"] = record.QTR_SOLD
         license_record["CALM_TCV"] = record.CALM_TCV
         license_record["SKU"] = record.PRODUCT_CODE
+        license_record["CALM_ACV"] = record.CALM_ACV
+        license_record["REGION"] = record.ACCOUNT_REGION
+        license_record["G2K"] = record.G2K
         
-
         license_records.append(license_record)
 
     # print(license_records)

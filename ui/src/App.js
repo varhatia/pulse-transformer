@@ -33,6 +33,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+import CsvDownload from 'react-json-to-csv';
 
 import { forwardRef } from 'react';
 
@@ -72,7 +73,7 @@ function App() {
   const [adoptionRateRows, setAdoptionRateRows] = useState([]);
   const [licenseRows, setLicenseRows] = useState([]);
   const [trialRows, setTrialRows] = useState([]);
-  
+
   const [supportRows, setSupportRows] = useState([]);
   const [withinRange, setWithinRange] = useState(0);
   
@@ -286,6 +287,7 @@ function App() {
       rows = Object.values(data)
       rows[0].map(item => tRows.push(item))
       setTrialRows(tRows)
+      setTrialJSON(tRows)
     })
 
     fetch('/getSupportData').then(res => res.json()).then(data => {
@@ -364,10 +366,10 @@ function App() {
   const [License, setLicense] = React.useState({
     columns: [
       { title: 'Customer', field: 'CUSTOMER' },
-      { title: 'Quarter', field: 'QTR_SOLD'},
+      { title: 'Qtr', field: 'QTR_SOLD'},
       { title: 'SKU', field: 'SKU'},
       { title: 'Calm TCV ($)', field: 'CALM_TCV', type: 'numeric'},
-      { title: 'Quantity', field: 'QTY_SOLD', type: 'numeric' }
+      { title: 'Qty', field: 'QTY_SOLD', type: 'numeric' }
     ],
   });
 
@@ -589,6 +591,9 @@ function App() {
                 columns={License.columns}
                 data={licenseRows}
                 />  
+                <div>
+                  <CsvDownload data={licenseRows}>Download License Data</CsvDownload>
+                </div>
               </TableCell>
               <TableCell>
                 <MaterialTable
@@ -597,6 +602,9 @@ function App() {
                 columns={Trial.columns}
                 data={trialRows}
                 />  
+                <div>
+                  <CsvDownload data={trialRows}>Download Trial Data</CsvDownload>
+                </div>
               </TableCell>
             </TableRow>
             {/* <TableRow>
@@ -612,6 +620,9 @@ function App() {
                   columns={AdoptionRate.columns}
                   data={adoptionRateRows}
                 />
+                <div>
+                  <CsvDownload data={adoptionRateRows}>Download Adoption Data</CsvDownload>
+                </div>
               </TableCell>
               <TableCell>
                 <MaterialTable
@@ -620,6 +631,9 @@ function App() {
                   columns={CalmVersionDistro.columns}
                   data={calmVersionRows}
                 />
+                <div>
+                  <CsvDownload data={calmVersionRows}>Download Version Data</CsvDownload>
+                </div>
               </TableCell>
             </TableRow>
               <TableRow>
@@ -723,6 +737,9 @@ function App() {
                 columns={Support.columns}
                 data={supportRows}
                 />  
+                <div>
+                  <CsvDownload data={supportRows}>Download Support Data</CsvDownload>
+                </div>
                 </TableCell>
                 <TableCell>
                   <MaterialTable
@@ -730,7 +747,10 @@ function App() {
                   title="Public Cloud Customers"
                   columns={PublicAccount.columns}
                   data={publicAccountRows}
-                  />  
+                  />
+                  <div>
+                  <CsvDownload data={publicAccountRows}>Download Public Account Data</CsvDownload>
+                </div>  
                 </TableCell>
               </TableRow>
           </TableBody>     
