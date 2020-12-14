@@ -136,9 +136,11 @@ class SalesData(db.Model):
     CALM_ACV = db.Column(db.String(50))
     ACCOUNT_REGION = db.Column(db.String(50))
     G2K = db.Column(db.String(10))
+    ACCOUNT_OWNER = db.Column(db.String(100))
+    SE_OWNER = db.Column(db.String(100))
 
 
-    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, ACCOUNT_REGION, G2K):
+    def __init__(self, CUSTOMER_NAME, QTR_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, ACCOUNT_REGION, G2K, ACCOUNT_OWNER, SE_OWNER):
         
         self.CUSTOMER_NAME = CUSTOMER_NAME
         self.QTR_SOLD = QTR_SOLD
@@ -149,6 +151,8 @@ class SalesData(db.Model):
         self.CALM_ACV = CALM_ACV
         self.ACCOUNT_REGION = ACCOUNT_REGION
         self.G2K = G2K
+        self.ACCOUNT_OWNER = ACCOUNT_OWNER
+        self.SE_OWNER = SE_OWNER
 
 
 class SupportData(db.Model):
@@ -386,10 +390,14 @@ def process_sfdc(sfdc_excel):
 
         G2K = row[12].value
 
+        ACCOUNT_OWNER = row[13].value
+
+        SE_OWNER = row[14].value
+
         if(ACCOUNT_NAME is not None):
 
             #Populate the Data
-            salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, REGION, G2K)
+            salesData = SalesData(ACCOUNT_NAME.capitalize(), QUARTER_SOLD, PRODUCT_CODE, QTY_SOLD, CALM_TCV, TERM, CALM_ACV, REGION, G2K, ACCOUNT_OWNER, SE_OWNER)
             
             db.session.add(salesData)
             # print("Entered Data for Account : ", ACCOUNT_NAME)    
@@ -519,6 +527,10 @@ def getStats():
             else:
                 total_licenses_sold = total_licenses_sold + record.QTY_SOLD
 
+        total_G2K = 0
+        g2k_customers = db.session.query(SalesData.CUSTOMER_NAME).distinct().filter(SalesData.G2K == '1').count()
+        total_G2K = g2k_customers
+            
         # total_licenses_sold = db.session.query(func.sum(SalesData.QTY_SOLD)).scalar()
 
         # total_tcv = db.session.query(func.sum(SalesData.CALM_TCV)).scalar()
@@ -542,6 +554,7 @@ def getStats():
         # stats['lifetime_tcv'] = total_tcv
         stats['licenses_sold'] = total_licenses_sold
         stats['cores_sold'] = total_cores_sold
+        stats['g2K_customers'] = total_G2K
 
         #All Pulse Customers
         pulse_customers = db.session.query(Data.Customer_Name).distinct().filter(Data.QUARTER == quarter_to_show)
@@ -1039,6 +1052,8 @@ def getLicenseData():
         license_record["CALM_ACV"] = record.CALM_ACV
         license_record["REGION"] = record.ACCOUNT_REGION
         license_record["G2K"] = record.G2K
+        license_record["ACCOUNT_OWNER"] = record.ACCOUNT_OWNER
+        license_record["SE_OWNER"] = record.SE_OWNER
         
         license_records.append(license_record)
 

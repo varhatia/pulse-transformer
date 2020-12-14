@@ -56,6 +56,7 @@ function App() {
   const [cores_sold, setCoresSold] = useState(0);
   const [avg_term, setAvgTerm] = useState(0);
   const [pulse_paid, setPulsePaid] = useState(0);
+  const [g2k, setG2K] = useState(0);
   const [avg_adoption, setAvgAdoption] = useState(0);
   
   const [qtrRows, setQtrRows] = useState([]);
@@ -183,6 +184,7 @@ function App() {
 
       setAvgTerm(data.avg_term);
       setPulsePaid(data.pulse_paid);
+      setG2K(data.g2K_customers);
     });
 
     fetch('/getStatsByQtr').then(res => res.json()).then(data => {
@@ -287,7 +289,7 @@ function App() {
       rows = Object.values(data)
       rows[0].map(item => tRows.push(item))
       setTrialRows(tRows)
-      setTrialJSON(tRows)
+      
     })
 
     fetch('/getSupportData').then(res => res.json()).then(data => {
@@ -491,10 +493,10 @@ function App() {
                     <Card className={classes.root} align="left">
                       <CardContent>
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                          Average Adoption 
+                          G2K Customers
                         </Typography>
                         <Typography variant="h5" component="h2">
-                            {avg_adoption} %
+                            {g2k}
                         </Typography>
                       </CardContent>
                       </Card>
